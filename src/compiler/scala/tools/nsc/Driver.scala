@@ -28,6 +28,7 @@ abstract class Driver {
       reporter.echo(command.usageMsg)
       reporter.echo(compiler.pluginOptionsHelp)
     } else {
+      profUtils.log(s"Compiling ${command.files}")
       val run = new compiler.Run()
       run compile command.files
       reporter.printSummary()
@@ -61,6 +62,7 @@ abstract class Driver {
   }
 
   def main(args: Array[String]) {
+    profUtils.log("Entered main")
     process(args)
     sys.exit(if (reporter.hasErrors) 1 else 0)
   }

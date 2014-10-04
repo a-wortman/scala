@@ -7,6 +7,7 @@ package scala
 package tools
 package nsc
 
+import profUtils._
 import java.io.{ File, FileOutputStream, PrintWriter, IOException, FileNotFoundException }
 import java.nio.charset.{ Charset, CharsetDecoder, IllegalCharsetNameException, UnsupportedCharsetException }
 import java.util.UUID._
@@ -1317,7 +1318,10 @@ class Global(var currentSettings: Settings, var reporter: Reporter)
 
       units match {
         case Nil => checkDeprecations()   // nothing to compile, report deprecated options
-        case _   => compileUnits(units, firstPhase)
+        case _   => {
+          profUtils.log("Starting compilation from first phase.")
+          compileUnits(units, firstPhase)
+        }
       }
     }
 
@@ -1333,12 +1337,15 @@ class Global(var currentSettings: Settings, var reporter: Reporter)
       globalPhase = fromPhase
 
       while (globalPhase.hasNext && !reporter.hasErrors) {
+        profUtils.enterPhase(globalPhase)
         val startTime = currentTime
         phase = globalPhase
         globalPhase.run()
 
         // progress update
         informTime(globalPhase.description, startTime)
+        // do more useful timing update
+        profUtils.log(s"Phase '${globalPhase.description}' started")
         val shouldWriteIcode = (
              (settings.writeICode.isSetByUser && (settings.writeICode containsPhase globalPhase))
           || (!settings.Xprint.doAllPhases && (settings.Xprint containsPhase globalPhase) && runIsAtOptimiz)
@@ -1367,15 +1374,19 @@ class Global(var currentSettings: Settings, var reporter: Reporter)
         // move the pointer
         globalPhase = globalPhase.next
 
-        // run tree/icode checkers
-        if (settings.check containsPhase globalPhase.prev)
-          runCheckers()
+        profUtils.exitPhase
 
-        // output collected statistics
-        if (settings.YstatisticsEnabled)
-          statistics.print(phase)
+        profUtils.time("Inter-phase code...") {
+          // run tree/icode checkers
+          if (settings.check containsPhase globalPhase.prev)
+            runCheckers()
 
-        advancePhase()
+          // output collected statistics
+          if (settings.YstatisticsEnabled)
+            statistics.print(phase)
+
+          advancePhase()
+        }
       }
 
       reporting.summarizeErrors()
@@ -1409,7 +1420,9 @@ class Global(var currentSettings: Settings, var reporter: Reporter)
     }
 
     /** Compile list of files given by their names */
-    def compile(filenames: List[String]) {
+    def compile(filenames: List[String]) = profUtils.time("Timing Global.compile") {
+      profUtils.log("Resetting start time to now.")
+      profUtils.restartTiming
       try {
         val sources: List[SourceFile] =
           if (settings.script.isSetByUser && filenames.size > 1) returning(Nil)(_ => globalError("can only compile one script at a time"))
