@@ -1345,35 +1345,36 @@ class Global(var currentSettings: Settings, var reporter: Reporter)
         // progress update
         informTime(globalPhase.description, startTime)
         // do more useful timing update
-        profUtils.log(s"Phase '${globalPhase.description}' started")
-        val shouldWriteIcode = (
-             (settings.writeICode.isSetByUser && (settings.writeICode containsPhase globalPhase))
-          || (!settings.Xprint.doAllPhases && (settings.Xprint containsPhase globalPhase) && runIsAtOptimiz)
-        )
-        if (shouldWriteIcode) {
-          // Write *.icode files when -Xprint-icode or -Xprint:<some-optimiz-phase> was given.
-          writeICode()
-        } else if ((settings.Xprint containsPhase globalPhase) || settings.printLate && runIsAt(cleanupPhase)) {
-          // print trees
-          if (settings.Xshowtrees || settings.XshowtreesCompact || settings.XshowtreesStringified) nodePrinters.printAll()
-          else printAllUnits()
+        profUtils.log(s"post-phase '${globalPhase.description}' started")
+        time {
+          val shouldWriteIcode = (
+               (settings.writeICode.isSetByUser && (settings.writeICode containsPhase globalPhase))
+            || (!settings.Xprint.doAllPhases && (settings.Xprint containsPhase globalPhase) && runIsAtOptimiz)
+          )
+          if (shouldWriteIcode) {
+            // Write *.icode files when -Xprint-icode or -Xprint:<some-optimiz-phase> was given.
+            writeICode()
+          } else if ((settings.Xprint containsPhase globalPhase) || settings.printLate && runIsAt(cleanupPhase)) {
+            // print trees
+            if (settings.Xshowtrees || settings.XshowtreesCompact || settings.XshowtreesStringified) nodePrinters.printAll()
+            else printAllUnits()
+          }
+
+          // print the symbols presently attached to AST nodes
+          if (settings.Yshowsyms)
+            trackerFactory.snapshot()
+
+          // print members
+          if (settings.Yshow containsPhase globalPhase)
+            showMembers()
+
+          // browse trees with swing tree viewer
+          if (settings.browse containsPhase globalPhase)
+            treeBrowser browse (phase.name, units)
+
+          // move the pointer
+          globalPhase = globalPhase.next
         }
-
-        // print the symbols presently attached to AST nodes
-        if (settings.Yshowsyms)
-          trackerFactory.snapshot()
-
-        // print members
-        if (settings.Yshow containsPhase globalPhase)
-          showMembers()
-
-        // browse trees with swing tree viewer
-        if (settings.browse containsPhase globalPhase)
-          treeBrowser browse (phase.name, units)
-
-        // move the pointer
-        globalPhase = globalPhase.next
-
         profUtils.exitPhase
 
         profUtils.time("Inter-phase code...") {

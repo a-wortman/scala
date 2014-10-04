@@ -26,8 +26,9 @@ trait Transform extends SubComponent {
 
   /** The phase defined by this transform */
   class Phase(prev: scala.tools.nsc.Phase) extends StdPhase(prev) {
-    def apply(unit: global.CompilationUnit) {
-      newTransformer(unit).transformUnit(unit)
+    def apply(unit: global.CompilationUnit) = profUtils.time("Phase time") {
+      val t = profUtils.time("Creating new transformer") { newTransformer(unit) }
+      profUtils.time("Doing transformation") { t.transformUnit(unit) }
     }
   }
 }

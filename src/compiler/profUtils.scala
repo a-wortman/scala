@@ -1,15 +1,18 @@
 import java.io._
 import scala.collection.mutable.HashMap
+import scala.reflect.internal.Phase
 
 package object profUtils {
   private object stacktraceUtil {
-    def indentedPrint(e: Exception) = {
+    def indentedPrint(e: Exception): Unit = {
       val sw = new StringWriter
       e.printStackTrace(new PrintWriter(sw))
       val strings = sw.toString.split("\n")
-      for (line <- strings) {
-        profUtils.indentedPrintln(line)
-      }
+      val trimmed = strings
+        .takeWhile(_.indexOf("xsbt.CachedCompiler") == -1)
+        .filter(_.indexOf("at profUtils") == -1)
+        .mkString("\n")
+      profUtils.indentedPrintln(trimmed)
     }
   }
 
@@ -17,7 +20,7 @@ package object profUtils {
 
   private var start = System.nanoTime
 
-  private var currPhase = None
+  private var currPhase: Option[Phase] = None
 
   private val phaseTimeMap = HashMap[Phase, Long]()
 
@@ -29,7 +32,7 @@ package object profUtils {
         throw new IllegalStateException("Cannot enter phase while.. in a phase!")
       case None => {
         currPhase = Some(phase)
-        phaseTimeMap += currPhase -> System.nanoTime
+        phaseTimeMap += phase -> System.nanoTime
         log(s"Entering phase '${phase.description}'")
       }
     }
@@ -37,8 +40,8 @@ package object profUtils {
 
   def exitPhase = {
     currPhase match {
-      case Some(_) => {
-        log(s"Exiting phase '${phase.description}' after ${msDiff(System.nanoTime, phaseTimeMap.get(currPhase))}ms")
+      case Some(phase) => {
+        log(s"Exiting phase '${phase.description}' after ${msDiff(System.nanoTime, phaseTimeMap(phase))}ms")
         currPhase = None
       }
       case None => {
@@ -51,7 +54,7 @@ package object profUtils {
 
   def log(message: String): Unit = {
     val time = msDiff(System.nanoTime, start)
-    indentedPrintln(s"[ ${time}ms ]: $message")
+    indentedPrintln(s"[ ${time}ms ]: ${message}")
   }
 
   def stacktrace: Unit = stacktrace("Execution trace: ---! No real error !---")
@@ -73,18 +76,44 @@ package object profUtils {
   }
 
   def time[A](label: String)(f: => A): A = {
-    indentedPrintln(label)
-    time(f)
+    indentedPrintln(label, ("↱ ", "| "))
+    timeTrace(f)
   }
 
-  def time[A](f: => A): A = withIndent {
-    val start = System.nanoTime()
-    val res = f
-    val end = System.nanoTime()
-    indentedPrintln(s"Time taken: ${(end - start)/1000000}ms")
-    res
+  def time[A](label: String, t: Int)(f: => A): A = {
+    indentedPrintln(label, ("↱ ", "| "))
+    timeTrace(f, t)
   }
 
-  private[profUtils] def indentedPrint(s: String) = print(indent + s)
-  private[profUtils] def indentedPrintln(s: String) = println(indent + s)
+  def time[A](f: => A): A = timeTrace(f)
+
+  private def timeTrace[A](f: => A, threshold: Int = 0): A = {
+    case class Result[A](res: A, msTime: Long)
+
+    val result = withIndent {
+      val start = System.nanoTime()
+      val res = f
+      val end = System.nanoTime()
+      Result(res, (end - start)/1000000)
+    }
+
+    indentedPrintln(s"↳ Time taken: ${result.msTime}ms")
+
+    if (threshold != 0 && result.msTime > threshold) {
+      profUtils.stacktrace
+    }
+
+    result.res
+  }
+
+  private[profUtils] def indentedPrintln(s: String, prefixes: (String, String) = ("", "")): Unit = {
+    val lines = s.trim.split("\n")
+    val iter = lines.iterator
+    if (!iter.hasNext) return
+    println(indent + prefixes._1 + iter.next)
+
+    for (line <- iter) {
+      println(indent + prefixes._2 + line)
+    }
+  }
 }

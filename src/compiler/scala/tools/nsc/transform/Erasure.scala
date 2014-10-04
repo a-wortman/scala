@@ -1101,7 +1101,10 @@ abstract class Erasure extends AddInterfaces
           tree
       }
 
-      override def transform(tree: Tree): Tree = {
+      override def transform(tree: Tree): Tree = profUtils.time(s"Erasing $tree") {
+        // the stacktraces this produces are INSANE
+        //profUtils.stacktrace(s"Erasing ${tree}")
+
         // Reply to "!!! needed?" which adorned the next line: without it, build fails with:
         //   Exception in thread "main" scala.tools.nsc.symtab.Types$TypeError:
         //   value array_this is not a member of object scala.runtime.ScalaRunTime
@@ -1131,13 +1134,19 @@ abstract class Erasure extends AddInterfaces
      *  re-type it at phase erasure.next.
      */
     override def transform(tree: Tree): Tree = {
-      val tree1 = preTransformer.transform(tree)
+      val tree1 = profUtils.time("preTransformer") {
+        preTransformer.transform(tree)
+      }
       // log("tree after pretransform: "+tree1)
       exitingErasure {
-        val tree2 = mixinTransformer.transform(tree1)
+        val tree2 = profUtils.time("mixinTransformer") {
+          mixinTransformer.transform(tree1)
+        }
         // debuglog("tree after addinterfaces: \n" + tree2)
 
-        newTyper(rootContextPostTyper(unit, tree)).typed(tree2)
+        profUtils.time("newTyper") {
+          newTyper(rootContextPostTyper(unit, tree)).typed(tree2)
+        }
       }
     }
   }
