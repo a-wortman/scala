@@ -3,6 +3,11 @@ import scala.collection.mutable.HashMap
 import scala.reflect.internal.Phase
 
 package object profUtils {
+  val phases = true
+  val transforms = false
+  val erasure = false
+  val erasure_preErase = true
+
   private object stacktraceUtil {
     def indentedPrint(e: Exception): Unit = {
       val sw = new StringWriter
@@ -68,39 +73,44 @@ package object profUtils {
 
   private def indent = "| " * depth
 
-  private def withIndent[A](f: => A): A = {
-    depth = depth + 1
+  private def withIndent[A](cond: => Boolean)(f: => A): A = {
+    if (cond) depth = depth + 1
     val ret = f
-    depth = depth - 1
+    if (cond) depth = depth - 1
     ret
   }
 
-  def time[A](label: String)(f: => A): A = {
-    indentedPrintln(label, ("↱ ", "| "))
-    timeTrace(f)
-  }
+  def time[A](cond: => Boolean)(f: => A): A = timeTrace(f, 0, cond)
 
-  def time[A](label: String, t: Int)(f: => A): A = {
-    indentedPrintln(label, ("↱ ", "| "))
-    timeTrace(f, t)
+  def time[A](label: String)(f: => A): A = time(label, true)(f)
+
+  def time[A](label: String, cond: => Boolean)(f: => A): A = time(label, 0, cond)(f)
+
+  def time[A](label: String, t: Int, cond: => Boolean)(f: => A): A = {
+    if (cond) {
+      indentedPrintln(label, ("↱ ", "| "))
+    }
+    timeTrace(f, t, cond)
   }
 
   def time[A](f: => A): A = timeTrace(f)
 
-  private def timeTrace[A](f: => A, threshold: Int = 0): A = {
+  private def timeTrace[A](f: => A, threshold: Int = 0, cond: => Boolean = true): A = {
     case class Result[A](res: A, msTime: Long)
 
-    val result = withIndent {
+    val result = withIndent(cond) {
       val start = System.nanoTime()
       val res = f
       val end = System.nanoTime()
       Result(res, (end - start)/1000000)
     }
 
-    indentedPrintln(s"↳ Time taken: ${result.msTime}ms")
+    if (cond) {
+      indentedPrintln(s"↳ Time taken: ${result.msTime}ms")
 
-    if (threshold != 0 && result.msTime > threshold) {
-      profUtils.stacktrace
+      if (threshold != 0 && result.msTime > threshold) {
+        profUtils.stacktrace
+      }
     }
 
     result.res

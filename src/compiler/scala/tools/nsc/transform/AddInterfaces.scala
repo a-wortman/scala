@@ -363,7 +363,7 @@ abstract class AddInterfaces extends InfoTransform { self: Erasure =>
         case _ =>
           tree
       }
-      profUtils.time(s"Parent transform of\n${tree1}", 500) {
+      profUtils.time(s"Parent transform of\n${tree1}", 500, profUtils.transforms) {
         super.transform(tree1)
       }
     }

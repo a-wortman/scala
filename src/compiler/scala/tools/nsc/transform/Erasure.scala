@@ -1030,15 +1030,15 @@ abstract class Erasure extends AddInterfaces
 
       def preErase(tree: Tree): Tree = tree match {
         case tree: Apply =>
-          preEraseApply(tree)
+          profUtils.time("preEraseApply", profUtils.erasure_preErase) { preEraseApply(tree) }
 
         case TypeApply(fun, args) if (fun.symbol.owner != AnyClass &&
                                       fun.symbol != Object_asInstanceOf &&
                                       fun.symbol != Object_isInstanceOf) =>
           // leave all other type tests/type casts, remove all other type applications
-          preErase(fun)
+          profUtils.time("preErase(fun)", profUtils.erasure_preErase) { preErase(fun) }
 
-        case Select(qual, name) =>
+        case Select(qual, name) => profUtils.time("select", profUtils.erasure) {
           val sym = tree.symbol
           val owner = sym.owner
           if (owner.isRefinementClass) {
@@ -1071,15 +1071,15 @@ abstract class Erasure extends AddInterfaces
                   treeCopy.Select(tree, gen.mkAttributedCast(qual, qual.tpe.widen), name) //)
                 } else tree
             }
-          } else tree
-        case Template(parents, self, body) =>
+          } else tree }
+        case Template(parents, self, body) => profUtils.time("Template", profUtils.erasure) {
           assert(!currentOwner.isImplClass)
           //Console.println("checking no dble defs " + tree)//DEBUG
           checkNoDoubleDefs(tree.symbol.owner)
           treeCopy.Template(tree, parents, noSelfType, addBridges(body, currentOwner))
-
+        }
         case Match(selector, cases) =>
-          Match(Typed(selector, TypeTree(selector.tpe)), cases)
+          profUtils.time("Match", profUtils.erasure) { Match(Typed(selector, TypeTree(selector.tpe)), cases) }
 
         case Literal(ct) if ct.tag == ClazzTag
                          && ct.typeValue.typeSymbol != definitions.UnitClass =>
@@ -1089,11 +1089,13 @@ abstract class Erasure extends AddInterfaces
           }
           treeCopy.Literal(tree, Constant(erased))
 
-        case ClassDef(_,_,_,_) =>
+        case ClassDef(_,_,_,_) => profUtils.time("ClassDef") {
           debuglog("defs of " + tree.symbol + " = " + tree.symbol.info.decls)
           copyClassDef(tree)(tparams = Nil)
-        case DefDef(_,_,_,_,_,_) =>
+        }
+        case DefDef(_,_,_,_,_,_) => profUtils.time("DefDef") {
           copyDefDef(tree)(tparams = Nil)
+        }
         case TypeDef(_, _, _, _) =>
           EmptyTree
 
@@ -1101,7 +1103,7 @@ abstract class Erasure extends AddInterfaces
           tree
       }
 
-      override def transform(tree: Tree): Tree = profUtils.time(s"Erasing $tree") {
+      override def transform(tree: Tree): Tree = profUtils.time(s"Erasing $tree", profUtils.erasure) {
         // the stacktraces this produces are INSANE
         //profUtils.stacktrace(s"Erasing ${tree}")
 
@@ -1113,18 +1115,24 @@ abstract class Erasure extends AddInterfaces
         //   gen.mkRuntimeCall("array_"+name, qual :: args)
         if (tree.symbol == ArrayClass && !tree.isType) tree
         else {
-          val tree1 = preErase(tree)
+          val tree1 = profUtils.time("preErase", profUtils.erasure_preErase) { preErase(tree) }
           tree1 match {
             case EmptyTree | TypeTree() =>
               tree1 setType specialScalaErasure(tree1.tpe)
             case ArrayValue(elemtpt, trees) =>
-              treeCopy.ArrayValue(
-                tree1, elemtpt setType specialScalaErasure.applyInArray(elemtpt.tpe), trees map transform).clearType()
+              profUtils.time("treeCopy.ArrayValue", profUtils.erasure) {
+                treeCopy.ArrayValue(
+                  tree1, elemtpt setType specialScalaErasure.applyInArray(elemtpt.tpe), trees map transform).clearType()
+              }
             case DefDef(_, _, _, _, tpt, _) =>
-              try super.transform(tree1).clearType()
-              finally tpt setType specialErasure(tree1.symbol)(tree1.symbol.tpe).resultType
+              profUtils.time("DefDef, do super.transform", profUtils.erasure) {
+                try super.transform(tree1).clearType()
+                finally tpt setType profUtils.time("specialErasure")({ specialErasure(tree1.symbol)(tree1.symbol.tpe).resultType })
+              }
             case _ =>
-              super.transform(tree1).clearType()
+              profUtils.time("N/A: super.transform.clearType()", profUtils.erasure) {
+                super.transform(tree1).clearType()
+              }
           }
         }
       }
