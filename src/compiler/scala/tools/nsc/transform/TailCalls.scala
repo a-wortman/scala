@@ -7,6 +7,7 @@ package scala
 package tools.nsc
 package transform
 
+import scala.tools.util.Logging
 import symtab.Flags
 import Flags.SYNTHETIC
 
@@ -15,7 +16,7 @@ import Flags.SYNTHETIC
  *  @author Iulian Dragos
  *  @version 1.0
  */
-abstract class TailCalls extends Transform {
+abstract class TailCalls extends Transform with Logging {
   import global._                     // the global environment
   import definitions._                // standard classes and methods
   import typer.typedPos               // methods to type trees

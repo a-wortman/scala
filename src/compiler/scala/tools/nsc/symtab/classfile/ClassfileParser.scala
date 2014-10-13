@@ -16,6 +16,7 @@ import scala.annotation.switch
 import scala.reflect.internal.{ JavaAccFlags }
 import scala.reflect.internal.pickling.{PickleBuffer, ByteCodecs}
 import scala.tools.nsc.io.AbstractFile
+import scala.tools.util.Logging
 
 import util.ClassPath
 
@@ -24,7 +25,7 @@ import util.ClassPath
  *  @author Martin Odersky
  *  @version 1.0
  */
-abstract class ClassfileParser {
+abstract class ClassfileParser extends Logging{
   val symbolTable: SymbolTable {
     def settings: Settings
   }

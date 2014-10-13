@@ -15,6 +15,7 @@ import scala.annotation.switch
 
 import scala.tools.asm
 import scala.tools.asm.util.{TraceMethodVisitor, ASMifier}
+import scala.tools.util.Logging
 import java.io.PrintWriter
 
 /*
@@ -23,7 +24,7 @@ import java.io.PrintWriter
  *  @version 1.0
  *
  */
-abstract class BCodeSkelBuilder extends BCodeHelpers {
+abstract class BCodeSkelBuilder extends BCodeHelpers with Logging {
   import global._
   import bTypes._
   import coreBTypes._
@@ -82,10 +83,6 @@ abstract class BCodeSkelBuilder extends BCodeHelpers {
     }
 
     def tpeTK(tree: Tree): BType = { toTypeKind(tree.tpe) }
-
-    def log(msg: => AnyRef) {
-      global synchronized { global.log(msg) }
-    }
 
     override def getCurrentCUnit(): CompilationUnit = { cunit }
 

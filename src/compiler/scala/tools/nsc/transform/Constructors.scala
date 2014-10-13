@@ -6,6 +6,8 @@
 package scala.tools.nsc
 package transform
 
+import scala.tools.util.Logging
+
 import scala.collection.{ mutable, immutable }
 import scala.collection.mutable.ListBuffer
 import symtab.Flags._
@@ -13,7 +15,7 @@ import symtab.Flags._
 /** This phase converts classes with parameters into Java-like classes with
  *  fields, which are assigned to from constructors.
  */
-abstract class Constructors extends Statics with Transform with ast.TreeDSL {
+abstract class Constructors extends Statics with Transform with ast.TreeDSL with Logging {
   import global._
   import definitions._
 

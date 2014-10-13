@@ -9,8 +9,9 @@ package transform
 import symtab._
 import Flags._
 import scala.collection.mutable.ListBuffer
+import scala.tools.util.Logging
 
-abstract class Flatten extends InfoTransform {
+abstract class Flatten extends InfoTransform with Logging {
   import global._
   import treeInfo.isQualifierSafeToElide
 

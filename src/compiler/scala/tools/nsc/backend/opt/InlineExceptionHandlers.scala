@@ -6,6 +6,7 @@ package scala.tools.nsc
 package backend.opt
 
 import java.util.concurrent.TimeUnit
+import scala.tools.util.Logging
 
 /**
   * This optimization phase inlines the exception handlers so that further phases can optimize the code better
@@ -49,7 +50,7 @@ import java.util.concurrent.TimeUnit
   *
   * @author Vlad Ureche
   */
-abstract class InlineExceptionHandlers extends SubComponent {
+abstract class InlineExceptionHandlers extends SubComponent with Logging {
   import global._
   import icodes._
   import icodes.opcodes._

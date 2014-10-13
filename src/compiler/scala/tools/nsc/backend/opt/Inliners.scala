@@ -9,6 +9,7 @@ package backend.opt
 
 import scala.collection.mutable
 import scala.tools.nsc.symtab._
+import scala.tools.util.Logging
 import scala.reflect.internal.util.NoSourceFile
 
 /**
@@ -37,7 +38,7 @@ import scala.reflect.internal.util.NoSourceFile
  *
  *  @author Iulian Dragos
  */
-abstract class Inliners extends SubComponent {
+abstract class Inliners extends SubComponent with Logging {
   import global._
   import icodes._
   import icodes.opcodes._

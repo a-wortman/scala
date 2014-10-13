@@ -12,6 +12,7 @@ import Flags.{ CASE => _, _ }
 import scala.collection.mutable
 import scala.collection.mutable.ListBuffer
 import scala.tools.nsc.settings.ScalaVersion
+import scala.tools.util.Logging
 
 /** This class ...
  *
@@ -21,6 +22,7 @@ import scala.tools.nsc.settings.ScalaVersion
 abstract class ExplicitOuter extends InfoTransform
       with TypingTransformers
       with ast.TreeDSL
+      with Logging
 {
   import global._
   import definitions._

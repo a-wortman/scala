@@ -12,13 +12,14 @@ package icode
 import scala.collection.{ mutable, immutable }
 import scala.collection.mutable.{ ListBuffer, Buffer }
 import scala.tools.nsc.symtab._
+import scala.tools.util.Logging
 import scala.annotation.switch
 
 /**
  *  @author  Iulian Dragos
  *  @version 1.0
  */
-abstract class GenICode extends SubComponent {
+abstract class GenICode extends SubComponent with Logging {
   import global._
   import icodes._
   import icodes.opcodes._

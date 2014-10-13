@@ -51,8 +51,6 @@ abstract class SymbolTable extends macros.Universe
 
   val gen = new InternalTreeGen { val global: SymbolTable.this.type = SymbolTable.this }
 
-  def log(msg: => AnyRef): Unit
-
   protected def elapsedMessage(msg: String, start: Long) =
     msg + " in " + (TimeUnit.NANOSECONDS.toMillis(System.nanoTime()) - start) + "ms"
 
@@ -67,7 +65,6 @@ abstract class SymbolTable extends macros.Universe
   def debugwarn(msg: => String): Unit = devWarning(msg)
 
   /** Override with final implementation for inlining. */
-  def debuglog(msg:  => String): Unit = if (settings.debug) log(msg)
   def devWarning(msg: => String): Unit = if (isDeveloper) Console.err.println(msg)
   def throwableAsString(t: Throwable): String = "" + t
   def throwableAsString(t: Throwable, maxFrames: Int): String = t.getStackTrace take maxFrames mkString "\n  at "
@@ -85,20 +82,6 @@ abstract class SymbolTable extends macros.Universe
     result
   }
 
-  private[scala] def printResult[T](msg: String)(result: T) = {
-    Console.err.println(msg + ": " + result)
-    result
-  }
-  @inline
-  final private[scala] def logResult[T](msg: => String)(result: T): T = {
-    log(msg + ": " + result)
-    result
-  }
-  @inline
-  final private[scala] def debuglogResult[T](msg: => String)(result: T): T = {
-    debuglog(msg + ": " + result)
-    result
-  }
   @inline
   final private[scala] def devWarningResult[T](msg: => String)(result: T): T = {
     devWarning(msg + ": " + result)
@@ -106,16 +89,10 @@ abstract class SymbolTable extends macros.Universe
   }
   @inline
   final private[scala] def logResultIf[T](msg: => String, cond: T => Boolean)(result: T): T = {
-    if (cond(result))
-      log(msg + ": " + result)
-
     result
   }
   @inline
   final private[scala] def debuglogResultIf[T](msg: => String, cond: T => Boolean)(result: T): T = {
-    if (cond(result))
-      debuglog(msg + ": " + result)
-
     result
   }
 
@@ -357,7 +334,6 @@ abstract class SymbolTable extends macros.Universe
     }
 
     def clearAll() = {
-      debuglog("Clearing " + caches.size + " caches.")
       caches foreach (ref => Option(ref.get).foreach(_.clear))
       caches = caches.filterNot(_.get == null)
     }

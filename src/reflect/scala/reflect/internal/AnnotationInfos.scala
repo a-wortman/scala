@@ -11,9 +11,10 @@ import pickling.ByteCodecs
 import scala.annotation.tailrec
 import scala.collection.immutable.ListMap
 import scala.language.postfixOps
+import scala.tools.util.Logging
 
 /** AnnotationInfo and its helpers */
-trait AnnotationInfos extends api.Annotations { self: SymbolTable =>
+trait AnnotationInfos extends api.Annotations with Logging { self: SymbolTable =>
   import definitions._
   import treeInfo._
 

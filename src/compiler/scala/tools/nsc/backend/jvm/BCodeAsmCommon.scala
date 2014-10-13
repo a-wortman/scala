@@ -6,13 +6,14 @@
 package scala.tools.nsc.backend.jvm
 
 import scala.tools.nsc.Global
+import scala.tools.util.Logging
 import PartialFunction._
 
 /**
  * This trait contains code shared between GenBCode and GenASM that depends on types defined in
  * the compiler cake (Global).
  */
-final class BCodeAsmCommon[G <: Global](val global: G) {
+final class BCodeAsmCommon[G <: Global](val global: G) extends Logging {
   import global._
 
   /**

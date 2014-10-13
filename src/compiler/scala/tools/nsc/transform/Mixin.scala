@@ -9,8 +9,9 @@ package transform
 import symtab._
 import Flags._
 import scala.collection.{ mutable, immutable }
+import scala.tools.util.Logging
 
-abstract class Mixin extends InfoTransform with ast.TreeDSL {
+abstract class Mixin extends InfoTransform with ast.TreeDSL with Logging {
   import global._
   import definitions._
   import CODE._

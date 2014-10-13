@@ -5,10 +5,12 @@
 package scala.tools.nsc
 package transform
 
+import scala.tools.util.Logging
+
 /** This phase maps ErasedValueTypes to the underlying unboxed representation and
  *  performs peephole optimizations.
  */
-trait PostErasure extends InfoTransform with TypingTransformers with scala.reflect.internal.transform.PostErasure {
+trait PostErasure extends InfoTransform with TypingTransformers with scala.reflect.internal.transform.PostErasure with Logging {
   val global: Global
 
   import global._

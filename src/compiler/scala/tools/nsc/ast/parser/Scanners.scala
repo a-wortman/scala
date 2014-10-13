@@ -6,6 +6,7 @@ package scala.tools.nsc
 package ast.parser
 
 import scala.tools.nsc.util.{ CharArrayReader, CharArrayReaderData }
+import scala.tools.util.Logging
 import scala.reflect.internal.util._
 import scala.reflect.internal.Chars._
 import Tokens._
@@ -17,7 +18,7 @@ import scala.language.postfixOps
 
 /** See Parsers.scala / ParsersCommon for some explanation of ScannersCommon.
  */
-trait ScannersCommon {
+trait ScannersCommon extends Logging {
   val global : Global
   import global._
 

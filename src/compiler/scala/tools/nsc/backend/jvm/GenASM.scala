@@ -11,6 +11,7 @@ import scala.collection.{ mutable, immutable }
 import scala.reflect.internal.pickling.{ PickleFormat, PickleBuffer }
 import scala.tools.nsc.symtab._
 import scala.tools.asm
+import scala.tools.util.Logging
 import asm.Label
 import scala.annotation.tailrec
 
@@ -20,7 +21,7 @@ import scala.annotation.tailrec
  *
  * Documentation at http://lamp.epfl.ch/~magarcia/ScalaCompilerCornerReloaded/2012Q2/GenASM.pdf
  */
-abstract class GenASM extends SubComponent with BytecodeWriters with GenJVMASM { self =>
+abstract class GenASM extends SubComponent with BytecodeWriters with GenJVMASM with Logging { self =>
   import global._
   import icodes._
   import icodes.opcodes._

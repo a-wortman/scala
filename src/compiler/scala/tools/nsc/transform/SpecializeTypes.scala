@@ -8,6 +8,7 @@ package tools.nsc
 package transform
 
 import scala.tools.nsc.symtab.Flags
+import scala.tools.util.Logging
 import scala.collection.{ mutable, immutable }
 import scala.language.postfixOps
 import scala.language.existentials
@@ -50,7 +51,7 @@ import scala.annotation.tailrec
  *
  *     Above, `A$mcI$sp` cannot access `d`, so the method cannot be typechecked.
  */
-abstract class SpecializeTypes extends InfoTransform with TypingTransformers {
+abstract class SpecializeTypes extends InfoTransform with TypingTransformers with Logging {
   import global._
   import definitions._
   import Flags._

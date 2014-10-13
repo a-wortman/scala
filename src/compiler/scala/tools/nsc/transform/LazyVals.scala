@@ -2,8 +2,9 @@ package scala.tools.nsc
 package transform
 
 import scala.collection.{ mutable, immutable }
+import scala.tools.util.Logging
 
-abstract class LazyVals extends Transform with TypingTransformers with ast.TreeDSL {
+abstract class LazyVals extends Transform with TypingTransformers with ast.TreeDSL with Logging {
   // inherits abstract value `global` and class `Phase` from Transform
 
   import global._                  // the global environment

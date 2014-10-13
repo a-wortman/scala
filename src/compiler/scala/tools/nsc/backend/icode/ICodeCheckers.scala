@@ -9,8 +9,9 @@ package icode
 
 import scala.collection.mutable
 import scala.collection.mutable.ListBuffer
+import scala.tools.util.Logging
 
-abstract class ICodeCheckers {
+abstract class ICodeCheckers extends Logging {
   val global: Global
   import global._
 

@@ -8,10 +8,11 @@ package scala.tools.nsc
 package backend.opt
 
 import scala.collection.{ mutable, immutable }
+import scala.tools.util.Logging
 
 /**
  */
-abstract class DeadCodeElimination extends SubComponent {
+abstract class DeadCodeElimination extends SubComponent with Logging {
   import global._
   import icodes._
   import icodes.opcodes._

@@ -15,6 +15,7 @@ package typechecker
 
 import scala.collection.{mutable, immutable}
 import scala.reflect.internal.util.{ BatchSourceFile, Statistics, shortClassOfInstance }
+import scala.tools.util.Logging
 import mutable.ListBuffer
 import symtab.Flags._
 import Mode._
@@ -26,7 +27,7 @@ import Mode._
  *  @author  Martin Odersky
  *  @version 1.0
  */
-trait Typers extends Adaptations with Tags with TypersTracking with PatternTypers {
+trait Typers extends Adaptations with Tags with TypersTracking with PatternTypers with Logging {
   self: Analyzer =>
 
   import global._

@@ -8,6 +8,7 @@ package scala.tools.nsc
 package backend.icode
 package analysis
 
+import scala.tools.util.Logging
 import scala.collection.{ mutable, immutable }
 import immutable.ListSet
 
@@ -16,7 +17,7 @@ import immutable.ListSet
  *
  * @author Iulian Dragos
  */
-abstract class Liveness {
+abstract class Liveness extends Logging {
   val global: Global
   import global._
   import icodes._

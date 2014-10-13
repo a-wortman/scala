@@ -8,13 +8,14 @@ package reflect
 package internal
 
 import Flags._
+import scala.tools.util.Logging
 
 /** This class ...
  *
  *  @author Martin Odersky
  *  @version 1.0
  */
-abstract class TreeInfo {
+abstract class TreeInfo extends Logging {
   val global: SymbolTable
 
   import global._

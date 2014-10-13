@@ -4,11 +4,12 @@ package transform
 import scala.reflect.internal._
 import scala.tools.nsc.ast.TreeDSL
 import scala.tools.nsc.Global
+import scala.tools.util.Logging
 
 /**
  * A trait usable by transforms that need to adapt trees of one type to another type
  */
-trait TypeAdaptingTransformer {
+trait TypeAdaptingTransformer extends Logging {
   self: TreeDSL =>
 
   val analyzer: typechecker.Analyzer { val global: self.global.type }

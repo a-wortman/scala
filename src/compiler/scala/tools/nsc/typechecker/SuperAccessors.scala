@@ -8,6 +8,7 @@ package scala
 package tools.nsc
 package typechecker
 
+import scala.tools.util.Logging
 import scala.collection.{ mutable, immutable }
 import mutable.ListBuffer
 import symtab.Flags._
@@ -54,7 +55,7 @@ import symtab.Flags._
  *
  *  TODO: Rename phase to "Accessors" because it handles more than just super accessors
  */
-abstract class SuperAccessors extends transform.Transform with transform.TypingTransformers {
+abstract class SuperAccessors extends transform.Transform with transform.TypingTransformers with Logging {
   import global._
   import definitions._
   import analyzer.{ restrictionError }

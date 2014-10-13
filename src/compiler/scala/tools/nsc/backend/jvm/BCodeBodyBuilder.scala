@@ -12,6 +12,7 @@ package jvm
 import scala.annotation.switch
 
 import scala.tools.asm
+import scala.tools.util.Logging
 
 /*
  *
@@ -19,7 +20,7 @@ import scala.tools.asm
  *  @version 1.0
  *
  */
-abstract class BCodeBodyBuilder extends BCodeSkelBuilder {
+abstract class BCodeBodyBuilder extends BCodeSkelBuilder with Logging {
   import global._
   import definitions._
   import bTypes._

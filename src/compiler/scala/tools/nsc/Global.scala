@@ -283,21 +283,16 @@ class Global(var currentSettings: Settings, var reporter: Reporter)
       log(s"!!!$pos_s $msg") // such warnings always at least logged
   }
 
-  def logError(msg: String, t: Throwable): Unit = ()
-
   override def shouldLogAtThisPhase = settings.log.isSetByUser && (
     (settings.log containsPhase globalPhase) || (settings.log containsPhase phase)
   )
   // Over 200 closure objects are eliminated by inlining this.
+  /*
   @inline final def log(msg: => AnyRef) {
     if (shouldLogAtThisPhase)
       inform("[log %s%s] %s".format(globalPhase, atPhaseStackMessage, msg))
   }
-
-  @inline final override def debuglog(msg: => String) {
-    if (settings.debug)
-      log(msg)
-  }
+  */
 
   @deprecated("Renamed to reportThrowable", "2.10.1")
   def logThrowable(t: Throwable): Unit = reportThrowable(t)

@@ -18,8 +18,8 @@ class JavaUniverse extends InternalSymbolTable with JavaUniverseForce with Refle
   def erasurePhase = SomePhase
   lazy val settings = new Settings
 
-  private val isLogging = sys.props contains "scala.debug.reflect"
-  def log(msg: => AnyRef): Unit = if (isLogging) Console.err.println("[reflect] " + msg)
+  //private val isLogging = sys.props contains "scala.debug.reflect"
+  //def log(msg: => AnyRef): Unit = if (isLogging) Console.err.println("[reflect] " + msg)
 
   // TODO: why put output under isLogging? Calls to inform are already conditional on debug/verbose/...
   import scala.reflect.internal.{Reporter, ReporterImpl}

@@ -9,11 +9,12 @@ package backend
 package icode
 
 import scala.collection._
+import scala.tools.util.Logging
 
 /**
  *  @author Iulian Dragos
  */
-trait Repository {
+trait Repository extends Logging {
   val global: Global
   import global._
   import icodes._

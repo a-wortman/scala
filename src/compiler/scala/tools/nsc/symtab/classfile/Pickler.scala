@@ -15,6 +15,7 @@ import scala.reflect.internal.util.shortClassOfInstance
 import scala.collection.mutable.LinkedHashMap
 import PickleFormat._
 import Flags._
+import scala.tools.util.Logging
 
 /**
  * Serialize a top-level module and/or class.
@@ -24,7 +25,7 @@ import Flags._
  * @author Martin Odersky
  * @version 1.0
  */
-abstract class Pickler extends SubComponent {
+abstract class Pickler extends SubComponent with Logging {
   import global._
 
   val phaseName = "pickler"

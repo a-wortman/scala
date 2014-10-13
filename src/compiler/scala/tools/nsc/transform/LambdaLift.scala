@@ -10,8 +10,9 @@ import symtab._
 import Flags._
 import scala.collection.{ mutable, immutable }
 import scala.collection.mutable.{ LinkedHashMap, LinkedHashSet, TreeSet }
+import scala.tools.util.Logging
 
-abstract class LambdaLift extends InfoTransform {
+abstract class LambdaLift extends InfoTransform with Logging {
   import global._
   import definitions._
 

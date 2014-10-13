@@ -8,6 +8,7 @@ package transform
 import symtab._
 import Flags._
 import scala.collection.{ mutable, immutable }
+import scala.tools.util.Logging
 
 /**
  * Perform Step 1 in the inline classes SIP: Creates extension methods for all
@@ -16,7 +17,7 @@ import scala.collection.{ mutable, immutable }
  *  @author Martin Odersky
  *  @version 2.10
  */
-abstract class ExtensionMethods extends Transform with TypingTransformers {
+abstract class ExtensionMethods extends Transform with TypingTransformers with Logging {
 
   import global._ // the global environment
   import definitions._ // standard classes and methods

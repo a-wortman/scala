@@ -7,11 +7,12 @@ package scala.tools.nsc
 package backend.opt
 
 import scala.tools.nsc.backend.icode.analysis.LubException
+import scala.tools.util.Logging
 
 /**
  *  @author Iulian Dragos
  */
-abstract class ClosureElimination extends SubComponent {
+abstract class ClosureElimination extends SubComponent with Logging {
   import global._
   import icodes._
   import icodes.opcodes._

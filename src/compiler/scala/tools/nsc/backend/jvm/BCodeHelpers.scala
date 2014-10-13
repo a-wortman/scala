@@ -8,6 +8,7 @@ package tools.nsc
 package backend.jvm
 
 import scala.tools.asm
+import scala.tools.util.Logging
 import scala.collection.mutable
 import scala.tools.nsc.io.AbstractFile
 
@@ -18,7 +19,7 @@ import scala.tools.nsc.io.AbstractFile
  *  @version 1.0
  *
  */
-abstract class BCodeHelpers extends BCodeIdiomatic with BytecodeWriters {
+abstract class BCodeHelpers extends BCodeIdiomatic with BytecodeWriters with Logging {
   import global._
   import bTypes._
   import coreBTypes._

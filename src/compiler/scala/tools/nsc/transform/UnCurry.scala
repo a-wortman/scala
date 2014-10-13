@@ -10,6 +10,7 @@ package transform
 import symtab.Flags._
 import scala.collection.{ mutable, immutable }
 import scala.language.postfixOps
+import scala.tools.util.Logging
 
 /*<export> */
 /** - uncurry all symbol and tree types (@see UnCurryPhase) -- this includes normalizing all proper types.
@@ -46,7 +47,7 @@ import scala.language.postfixOps
 /*</export> */
 abstract class UnCurry extends InfoTransform
                           with scala.reflect.internal.transform.UnCurry
-                          with TypingTransformers with ast.TreeDSL {
+                          with TypingTransformers with ast.TreeDSL with Logging {
   val global: Global               // need to repeat here because otherwise last mixin defines global as
                                    // SymbolTable. If we had DOT this would not be an issue
   import global._                  // the global environment

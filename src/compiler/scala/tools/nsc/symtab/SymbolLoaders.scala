@@ -6,6 +6,7 @@
 package scala.tools.nsc
 package symtab
 
+import scala.tools.util.Logging
 import java.io.IOException
 import scala.compat.Platform.currentTime
 import scala.tools.nsc.util.{ ClassPath }
@@ -19,7 +20,7 @@ import scala.reflect.io.{ AbstractFile, NoAbstractFile }
  *  @author  Martin Odersky
  *  @version 1.0
  */
-abstract class SymbolLoaders {
+abstract class SymbolLoaders extends Logging {
   val symbolTable: symtab.SymbolTable {
     def settings: Settings
   }

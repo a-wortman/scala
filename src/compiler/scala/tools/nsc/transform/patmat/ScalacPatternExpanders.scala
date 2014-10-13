@@ -9,10 +9,12 @@ package nsc
 package transform
 package patmat
 
+import scala.tools.util.Logging
+
 /** This is scalac-specific logic layered on top of the scalac-agnostic
  *  "matching products to patterns" logic defined in PatternExpander.
  */
-trait ScalacPatternExpanders {
+trait ScalacPatternExpanders extends Logging {
   val global: Global
 
   import global._

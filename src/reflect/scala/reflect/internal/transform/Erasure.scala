@@ -4,8 +4,9 @@ package internal
 package transform
 
 import Flags.{PARAMACCESSOR, METHOD}
+import scala.tools.util.Logging
 
-trait Erasure {
+trait Erasure extends Logging {
 
   val global: SymbolTable
   import global._

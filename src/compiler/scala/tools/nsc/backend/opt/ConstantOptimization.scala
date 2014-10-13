@@ -8,6 +8,7 @@ package tools.nsc
 package backend.opt
 
 import scala.tools.nsc.backend.icode.analysis.LubException
+import scala.tools.util.Logging
 import scala.annotation.tailrec
 
 /**
@@ -24,7 +25,7 @@ import scala.annotation.tailrec
  * - eliminate unnecessary stores and loads
  * - propagate knowledge gathered from conditionals for further optimization
  */
-abstract class ConstantOptimization extends SubComponent {
+abstract class ConstantOptimization extends SubComponent with Logging {
   import global._
   import icodes._
   import icodes.opcodes._

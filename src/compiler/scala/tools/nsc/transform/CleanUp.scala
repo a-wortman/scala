@@ -10,8 +10,9 @@ import symtab._
 import Flags._
 import scala.collection._
 import scala.language.postfixOps
+import scala.tools.util.Logging
 
-abstract class CleanUp extends Statics with Transform with ast.TreeDSL {
+abstract class CleanUp extends Statics with Transform with ast.TreeDSL with Logging {
   import global._
   import definitions._
   import CODE._

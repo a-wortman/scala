@@ -8,6 +8,7 @@ package tools.nsc
 package backend.icode.analysis
 
 import scala.collection.{ mutable, immutable }
+import scala.tools.util.Logging
 
 /** A modified copy-propagation like analysis. It
  *  is augmented with a record-like value which is used
@@ -15,7 +16,7 @@ import scala.collection.{ mutable, immutable }
  *
  *  @author Iulian Dragos
  */
-abstract class CopyPropagation {
+abstract class CopyPropagation extends Logging {
   val global: Global
   import global._
   import icodes._

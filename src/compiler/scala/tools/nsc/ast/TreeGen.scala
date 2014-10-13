@@ -9,11 +9,12 @@ package ast
 import scala.collection.mutable.ListBuffer
 import symtab.Flags._
 import scala.language.postfixOps
+import scala.tools.util.Logging
 
 /** XXX to resolve: TreeGen only assumes global is a SymbolTable, but
  *  TreeDSL at the moment expects a Global.  Can we get by with SymbolTable?
  */
-abstract class TreeGen extends scala.reflect.internal.TreeGen with TreeDSL {
+abstract class TreeGen extends scala.reflect.internal.TreeGen with TreeDSL with Logging {
   val global: Global
 
   import global._

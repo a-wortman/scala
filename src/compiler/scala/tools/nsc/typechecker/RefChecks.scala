@@ -14,6 +14,7 @@ import scala.language.postfixOps
 import scala.tools.nsc.settings.ScalaVersion
 import scala.tools.nsc.settings.AnyScalaVersion
 import scala.tools.nsc.settings.NoScalaVersion
+import scala.tools.util.Logging
 
 /** <p>
  *    Post-attribution checking and transformation.
@@ -41,7 +42,7 @@ import scala.tools.nsc.settings.NoScalaVersion
  *
  *  @todo    Check whether we always check type parameter bounds.
  */
-abstract class RefChecks extends InfoTransform with scala.reflect.internal.transform.RefChecks {
+abstract class RefChecks extends InfoTransform with scala.reflect.internal.transform.RefChecks with Logging {
 
   val global: Global               // need to repeat here because otherwise last mixin defines global as
                                    // SymbolTable. If we had DOT this would not be an issue

@@ -7,12 +7,13 @@ package scala.tools.nsc
 package backend
 package icode
 
+import scala.tools.util.Logging
 import scala.collection.{ mutable, immutable }
 import mutable.ListBuffer
 import backend.icode.analysis.ProgramPoint
 import scala.language.postfixOps
 
-trait BasicBlocks {
+trait BasicBlocks extends Logging {
   self: ICodes =>
 
   import opcodes._

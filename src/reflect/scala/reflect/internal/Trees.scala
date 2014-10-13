@@ -7,6 +7,7 @@ package scala
 package reflect
 package internal
 
+import scala.tools.util.Logging
 import Flags._
 import pickling.PickleFormat._
 import scala.collection.{ mutable, immutable }
@@ -34,7 +35,7 @@ trait Trees extends api.Trees {
     )
   }
 
-  abstract class Tree extends TreeContextApiImpl with Attachable with Product {
+  abstract class Tree extends TreeContextApiImpl with Attachable with Product with Logging {
     val id = nodeCount // TODO: add to attachment?
     nodeCount += 1
 
