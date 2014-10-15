@@ -283,6 +283,8 @@ class Global(var currentSettings: Settings, var reporter: Reporter)
       _log(s"!!!$pos_s $msg") // such warnings always at least logged
   }
 
+  @inline final def log(msg: => String): Unit = _log(msg)
+
   override def shouldLogAtThisPhase = settings.log.isSetByUser && (
     (settings.log containsPhase globalPhase) || (settings.log containsPhase phase)
   )
