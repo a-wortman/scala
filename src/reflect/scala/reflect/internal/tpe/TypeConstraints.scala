@@ -46,7 +46,7 @@ private[internal] trait TypeConstraints {
 
     def clear() {
       if (settings.debug)
-        self.log("Clearing " + log.size + " entries from the undoLog.")
+        self._log("Clearing " + log.size + " entries from the undoLog.")
       log = Nil
     }
 
@@ -259,7 +259,7 @@ private[internal] trait TypeConstraints {
     // println("solving "+tvars+"/"+tparams+"/"+(tparams map (_.info)))
     foreach3(tvars, tparams, variances)(solveOne)
 
-    def logBounds(tv: TypeVar) = log {
+    def logBounds(tv: TypeVar) = _log {
       val what = if (!tv.instValid) "is invalid" else s"does not conform to bounds: ${tv.constr}"
       s"Inferred type for ${tv.originString} (${tv.inst}) $what"
     }

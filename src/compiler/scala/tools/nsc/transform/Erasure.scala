@@ -660,9 +660,9 @@ abstract class Erasure extends AddInterfaces
               case Some(itype) =>
                 val tref = itype.tpe
                 val argPt = enteringErasure(erasedValueClassArg(tref))
-                log(s"transforming inject $arg -> $tref/$argPt")
+                _log(s"transforming inject $arg -> $tref/$argPt")
                 val result = typed(arg, mode, argPt)
-                log(s"transformed inject $arg -> $tref/$argPt = $result:${result.tpe}")
+                _log(s"transformed inject $arg -> $tref/$argPt = $result:${result.tpe}")
                 return result setType ErasedValueType(tref.sym, result.tpe)
 
             }
@@ -794,7 +794,7 @@ abstract class Erasure extends AddInterfaces
       }
       def isErasureDoubleDef(pair: SymbolPair) = {
         import pair._
-        log(s"Considering for erasure clash:\n$pair")
+        _log(s"Considering for erasure clash:\n$pair")
         !exitingRefchecks(lowType matches highType) && sameTypeAfterErasure(low, high)
       }
       opc.iterator filter isErasureDoubleDef foreach doubleDefError
@@ -911,7 +911,7 @@ abstract class Erasure extends AddInterfaces
           preEraseIsInstanceOf
         } else if (fn.symbol.isOnlyRefinementMember) {
           // !!! Another spot where we produce overloaded types (see test pos/t6301)
-          log(s"${fn.symbol.fullLocationString} originates in refinement class - call will be implemented via reflection.")
+          _log(s"${fn.symbol.fullLocationString} originates in refinement class - call will be implemented via reflection.")
           ApplyDynamic(qualifier, args) setSymbol fn.symbol setPos tree.pos
         } else if (fn.symbol.isMethodWithExtension && !fn.symbol.tpe.isErroneous) {
           Apply(gen.mkAttributedRef(extensionMethods.extensionMethod(fn.symbol)), qualifier :: args)
@@ -1044,7 +1044,7 @@ abstract class Erasure extends AddInterfaces
           if (owner.isRefinementClass) {
             sym.allOverriddenSymbols filterNot (_.owner.isRefinementClass) match {
               case overridden :: _ =>
-                log(s"${sym.fullLocationString} originates in refinement class - replacing with ${overridden.fullLocationString}.")
+                _log(s"${sym.fullLocationString} originates in refinement class - replacing with ${overridden.fullLocationString}.")
                 tree.symbol = overridden
               case Nil =>
                 // Ideally this should not be reached or reachable; anything which would
@@ -1145,7 +1145,7 @@ abstract class Erasure extends AddInterfaces
       val tree1 = profUtils.time("preTransformer") {
         preTransformer.transform(tree)
       }
-      // log("tree after pretransform: "+tree1)
+      // _log("tree after pretransform: "+tree1)
       exitingErasure {
         val tree2 = profUtils.time("mixinTransformer") {
           mixinTransformer.transform(tree1)
@@ -1162,7 +1162,7 @@ abstract class Erasure extends AddInterfaces
   final def resolveAnonymousBridgeClash(sym: Symbol, bridge: Symbol) {
     // TODO reinstate this after Delambdafy generates anonymous classes that meet this requirement.
     // require(sym.owner.isAnonymousClass, sym.owner)
-    log(s"Expanding name of ${sym.debugLocationString} as it clashes with bridge. Renaming deemed safe because the owner is anonymous.")
+    _log(s"Expanding name of ${sym.debugLocationString} as it clashes with bridge. Renaming deemed safe because the owner is anonymous.")
     sym.expandName(sym.owner)
     bridge.resetFlag(BRIDGE)
   }

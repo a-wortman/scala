@@ -337,7 +337,7 @@ trait BasicBlocks extends Logging {
           instr match {
             case JUMP(_) | RETURN(_) | THROW(_) | SCOPE_EXIT(_)                  => // ok
             case STORE_LOCAL(local) if nme.isExceptionResultName(local.sym.name) => // ok
-            case x                                                               => log("Ignoring instruction, possibly at our peril, at " + pos + ": " + x)
+            case x                                                               => _log("Ignoring instruction, possibly at our peril, at " + pos + ": " + x)
           }
         }
       }

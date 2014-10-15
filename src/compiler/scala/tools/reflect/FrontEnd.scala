@@ -25,7 +25,7 @@ trait FrontEnd {
   val infos = new scala.collection.mutable.LinkedHashSet[Info]
 
   /** Handles incoming info */
-  def log(pos: Position, msg: String, severity: Severity) {
+  def _log(pos: Position, msg: String, severity: Severity) {
     infos += new Info(pos, msg, severity)
     severity.count += 1
     display(infos.last)

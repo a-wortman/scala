@@ -480,7 +480,7 @@ trait TypeDiagnostics {
                 case NullaryMethodType(_) =>
                 case MethodType(_, _)     =>
                 case _                    =>
-                  log(s"$tp referenced from $currentOwner")
+                  _log(s"$tp referenced from $currentOwner")
                   treeTypes += tp
               }
             }

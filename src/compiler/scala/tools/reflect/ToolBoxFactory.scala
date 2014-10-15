@@ -329,7 +329,7 @@ abstract class ToolBoxFactory[U <: JavaUniverse](val u: U) { factorySelf =>
       private object api extends CompilerApi {
         lazy val compiler: ToolBoxGlobal = {
           try {
-            val errorFn: String => Unit = msg => frontEnd.log(scala.reflect.internal.util.NoPosition, msg, frontEnd.ERROR)
+            val errorFn: String => Unit = msg => frontEnd._log(scala.reflect.internal.util.NoPosition, msg, frontEnd.ERROR)
             val command = new CompilerCommand(arguments.toList, errorFn)
             command.settings.outputDirs setSingleOutput virtualDirectory
             val instance = new ToolBoxGlobal(command.settings, frontEndToReporter(frontEnd, command.settings))

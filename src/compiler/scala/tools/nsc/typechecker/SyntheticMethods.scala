@@ -61,7 +61,7 @@ trait SyntheticMethods extends ast.TreeDSL {
     val syntheticsOk = (phase.id <= currentRun.typerPhase.id) && {
       symbolsToSynthesize(clazz0) filter (_ matchingSymbol clazz0.info isSynthetic) match {
         case Nil  => true
-        case syms => log("Not adding synthetic methods: already has " + syms.mkString(", ")) ; false
+        case syms => _log("Not adding synthetic methods: already has " + syms.mkString(", ")) ; false
       }
     }
     if (!syntheticsOk)

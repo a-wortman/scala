@@ -213,7 +213,7 @@ abstract class Inliners extends SubComponent with Logging {
       }
       val width = if (currentIClazz eq null) 40 else currentIClazz.symbol.enclosingPackage.fullName.length + 25
       val fmt = "%8s  %-" + width + "s" + cstr
-      log(fmt.format(what, main))
+      _log(fmt.format(what, main))
     }
     private def inlineLog(what: String, main: Symbol, comment: => String) {
       inlineLog(what, ownedName(main), comment)
@@ -562,7 +562,7 @@ abstract class Inliners extends SubComponent with Logging {
         */
 
         if (tfa.stat)
-          log(m.symbol.fullName + " iterations: " + tfa.iterations + " (size: " + caller.length + ")")
+          _log(m.symbol.fullName + " iterations: " + tfa.iterations + " (size: " + caller.length + ")")
       }
       while (retry && count < MAX_INLINE_RETRY)
 

@@ -55,7 +55,7 @@ abstract class DeadCodeElimination extends SubComponent with Logging {
   class DeadCode {
 
     def analyzeClass(cls: IClass) {
-      log(s"Analyzing ${cls.methods.size} methods in $cls.")
+      _log(s"Analyzing ${cls.methods.size} methods in $cls.")
       cls.methods.foreach { m =>
         this.method = m
         dieCodeDie(m)
@@ -107,7 +107,7 @@ abstract class DeadCodeElimination extends SubComponent with Logging {
         val diff = m.locals diff accessedLocals
         if (diff.nonEmpty) {
           val msg = diff.map(_.sym.name)mkString(", ")
-          log(s"Removed ${diff.size} dead locals: $msg")
+          _log(s"Removed ${diff.size} dead locals: $msg")
           m.locals = accessedLocals.reverse
         }
       }
@@ -217,7 +217,7 @@ abstract class DeadCodeElimination extends SubComponent with Logging {
      *  dependencies are marked useful too, and added to the worklist.
      */
     def mark() {
-//      log("Starting with worklist: " + worklist)
+//      _log("Starting with worklist: " + worklist)
       while (!worklist.isEmpty) {
         val (bb, idx) = worklist.head
         worklist -= ((bb, idx))
@@ -276,7 +276,7 @@ abstract class DeadCodeElimination extends SubComponent with Logging {
             // right now, the only static fields in closures are created when caching
             // 'symbol literals.
             case LOAD_FIELD(sym, true) if inliner.isClosureClass(sym.owner) =>
-              log("added closure class for field " + sym)
+              _log("added closure class for field " + sym)
               liveClosures += sym.owner
 
             case LOAD_EXCEPTION(_) =>
@@ -379,7 +379,7 @@ abstract class DeadCodeElimination extends SubComponent with Logging {
           } else {
             i match {
               case NEW(REFERENCE(sym)) =>
-                log(s"Eliminated instantation of $sym inside $m")
+                _log(s"Eliminated instantation of $sym inside $m")
               case STORE_LOCAL(l) if clobbers contains ((bb, idx)) =>
                 // if an unused instruction was a clobber of a used store to a reference or array type
                 // then we'll replace it with the store of a null to make sure the reference is
@@ -393,7 +393,7 @@ abstract class DeadCodeElimination extends SubComponent with Logging {
         }
 
         if (bb.nonEmpty) bb.close()
-        else log(s"empty block encountered in $m")
+        else _log(s"empty block encountered in $m")
       }
     }
 
@@ -415,7 +415,7 @@ abstract class DeadCodeElimination extends SubComponent with Logging {
                     bb(idx - 1) match {
                       case nw @ NEW(_) =>
                         val init = findInstruction(bb, nw.init)
-                        log("Moving DROP to after <init> call: " + nw.init)
+                        _log("Moving DROP to after <init> call: " + nw.init)
                         compensations(init) = List(DROP(consumedType))
                       case _ =>
                         compensations(d) = List(DROP(consumedType))

@@ -1120,7 +1120,7 @@ trait Infer extends Checkable {
       val enclCase                  = context.enclosingCaseDef
       def enclCase_s                = enclCase.toString.replaceAll("\\n", " ").take(60)
 
-      if (enclCase.savedTypeBounds.nonEmpty) log(
+      if (enclCase.savedTypeBounds.nonEmpty) _log(
         sm"""|instantiateTypeVar with nonEmpty saved type bounds {
              |  enclosing  $enclCase_s
              |      saved  ${enclCase.savedTypeBounds}
@@ -1129,15 +1129,15 @@ trait Infer extends Checkable {
 
       if (lo1 <:< hi1) {
         if (lo1 <:< lo0 && hi0 <:< hi1) // bounds unimproved
-          log(s"redundant bounds: discarding TypeBounds($lo1, $hi1) for $tparam, no improvement on TypeBounds($lo0, $hi0)")
+          _log(s"redundant bounds: discarding TypeBounds($lo1, $hi1) for $tparam, no improvement on TypeBounds($lo0, $hi0)")
         else if (tparam == lo1.typeSymbolDirect || tparam == hi1.typeSymbolDirect)
-          log(s"cyclical bounds: discarding TypeBounds($lo1, $hi1) for $tparam because $tparam appears as bounds")
+          _log(s"cyclical bounds: discarding TypeBounds($lo1, $hi1) for $tparam because $tparam appears as bounds")
         else {
           enclCase pushTypeBounds tparam
           tparam setInfo logResult(s"updated bounds: $tparam from ${tparam.info} to")(tb)
         }
       }
-      else log(s"inconsistent bounds: discarding TypeBounds($lo1, $hi1)")
+      else _log(s"inconsistent bounds: discarding TypeBounds($lo1, $hi1)")
     }
 
     /** Type intersection of simple type tp1 with general type tp2.
@@ -1438,7 +1438,7 @@ trait Infer extends Checkable {
         case Nil                                   => fail()
         case alt :: Nil                            => finish(alt, pre memberType alt)
         case alts @ (hd :: _)                      =>
-          log(s"Attaching AntiPolyType-carrying overloaded type to $sym")
+          _log(s"Attaching AntiPolyType-carrying overloaded type to $sym")
           // Multiple alternatives which are within bounds; spin up an
           // overloaded type which carries an "AntiPolyType" as a prefix.
           val tparams = newAsSeenFromMap(pre, hd.owner) mapOver hd.typeParams

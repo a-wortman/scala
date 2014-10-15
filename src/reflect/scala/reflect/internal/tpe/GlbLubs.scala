@@ -136,7 +136,7 @@ private[internal] trait GlbLubs {
           mergePrefixAndArgs(ts1, Covariant, depth) match {
             case NoType => loop(pretypes, tails)
             case tp if strictInference && willViolateRecursiveBounds(tp, ts0, ts1) =>
-              log(s"Breaking recursion in lublist, advancing frontier and discaring merged prefix/args from $tp")
+              _log(s"Breaking recursion in lublist, advancing frontier and discaring merged prefix/args from $tp")
               loop(pretypes, tails)
             case tp =>
               loop(tp :: pretypes, tails)
@@ -561,7 +561,7 @@ private[internal] trait GlbLubs {
     // if (settings.debug.value) { println(indent + "glb of " + ts + " at depth "+depth); indent = indent + "  " } //DEBUG
     if (Statistics.canEnable) Statistics.incCounter(nestedLubCount)
     glb0(ts)
-    // if (settings.debug.value) { indent = indent.substring(0, indent.length() - 2); log(indent + "glb of " + ts + " is " + res) }//DEBUG
+    // if (settings.debug.value) { indent = indent.substring(0, indent.length() - 2); _log(indent + "glb of " + ts + " is " + res) }//DEBUG
   }
 
   /** All types in list must be polytypes with type parameter lists of

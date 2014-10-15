@@ -281,7 +281,7 @@ trait Checkable {
         case _ =>
           val checker = new CheckabilityChecker(X, P)
           if (checker.result == RuntimeCheckable)
-            log(checker.summaryString)
+            _log(checker.summaryString)
 
           if (checker.neverMatches) {
             val addendum = if (checker.neverSubClass) "" else " (but still might match its erasure)"

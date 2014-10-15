@@ -742,7 +742,7 @@ trait Contexts { self: Analyzer =>
 
     def pushTypeBounds(sym: Symbol) {
       sym.info match {
-        case tb: TypeBounds => if (!tb.isEmptyBounds) log(s"Saving $sym info=$tb")
+        case tb: TypeBounds => if (!tb.isEmptyBounds) _log(s"Saving $sym info=$tb")
         case info           => devWarning(s"Something other than a TypeBounds seen in pushTypeBounds: $info is a ${shortClassOfInstance(info)}")
       }
       savedTypeBounds ::= ((sym, sym.info))
@@ -928,18 +928,18 @@ trait Contexts { self: Analyzer =>
         // So foo.member("x") != foo.member("x") if x is overloaded.  This seems
         // likely to be the cause of other bugs too...
         if (t1 =:= t2 && imp1Symbol.name == imp2Symbol.name) {
-          log(s"Suppressing ambiguous import: $t1 =:= $t2 && $imp1Symbol == $imp2Symbol")
+          _log(s"Suppressing ambiguous import: $t1 =:= $t2 && $imp1Symbol == $imp2Symbol")
           Some(imp1)
         }
         // Monomorphism restriction on types is in part because type aliases could have the
         // same target type but attach different variance to the parameters. Maybe it can be
         // relaxed, but doesn't seem worth it at present.
         else if (mt1 =:= mt2 && name.isTypeName && imp1Symbol.isMonomorphicType && imp2Symbol.isMonomorphicType) {
-          log(s"Suppressing ambiguous import: $mt1 =:= $mt2 && $imp1Symbol and $imp2Symbol are equivalent")
+          _log(s"Suppressing ambiguous import: $mt1 =:= $mt2 && $imp1Symbol and $imp2Symbol are equivalent")
           Some(imp1)
         }
         else {
-          log(s"Import is genuinely ambiguous:\n  " + characterize)
+          _log(s"Import is genuinely ambiguous:\n  " + characterize)
           None
         }
       )
@@ -962,7 +962,7 @@ trait Contexts { self: Analyzer =>
      */
     def isInPackageObject(sym: Symbol, pkg: Symbol): Boolean = {
       def uninitialized(what: String) = {
-        log(s"Cannot look for $sym in package object of $pkg; $what is not initialized.")
+        _log(s"Cannot look for $sym in package object of $pkg; $what is not initialized.")
         false
       }
       def pkgClass = if (pkg.isTerm) pkg.moduleClass else pkg

@@ -542,7 +542,7 @@ abstract class LambdaLift extends InfoTransform with Logging {
         case ClassDef(_, _, _, _) =>
           val lifted = liftedDefs get stat.symbol match {
             case Some(xs) => xs reverseMap addLifted
-            case _        => log("unexpectedly no lifted defs for " + stat.symbol) ; Nil
+            case _        => _log("unexpectedly no lifted defs for " + stat.symbol) ; Nil
           }
           try deriveClassDef(stat)(impl => deriveTemplate(impl)(_ ::: lifted))
           finally liftedDefs -= stat.symbol

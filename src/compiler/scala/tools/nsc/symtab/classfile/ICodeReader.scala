@@ -98,13 +98,13 @@ abstract class ICodeReader extends ClassfileParser {
             if (ownerTpe.typeSymbol.isImplClass) {
               f = ownerTpe.findMember(origName, 0, 0, stableOnly = false).suchThat(_.tpe =:= tpe)
             } else {
-              log("Couldn't find " + name + ": " + tpe + " inside: \n" + ownerTpe)
+              _log("Couldn't find " + name + ": " + tpe + " inside: \n" + ownerTpe)
               f = tpe match {
                 case MethodType(_, _) => owner.newMethod(name.toTermName, owner.pos)
                 case _                => owner.newVariable(name.toTermName, owner.pos)
               }
               f setInfo tpe
-              log("created fake member " + f.fullName)
+              _log("created fake member " + f.fullName)
             }
           }
         }
@@ -127,7 +127,7 @@ abstract class ICodeReader extends ClassfileParser {
     cls.info // ensure accurate type information
 
     isScalaModule = cls.isModule && !cls.isJavaDefined
-    log("ICodeReader reading " + cls)
+    _log("ICodeReader reading " + cls)
     val name = cls.javaClassName
 
     classPath.findClassFile(name) match {
@@ -188,7 +188,7 @@ abstract class ICodeReader extends ClassfileParser {
         if (sym == NoSymbol) {
           sym = if (field) owner.newValue(name.toTermName, owner.pos, jflags.toScalaFlags) else dummySym
           sym setInfoAndEnter tpe
-          log(s"ICodeReader could not locate ${name.decode} in $owner.  Created ${sym.defString}.")
+          _log(s"ICodeReader could not locate ${name.decode} in $owner.  Created ${sym.defString}.")
         }
         (jflags, sym)
       }
@@ -251,7 +251,7 @@ abstract class ICodeReader extends ClassfileParser {
       definitions.NullClass
     else if (nme.isImplClassName(name)) {
       val iface = rootMirror.getClassByName(tpnme.interfaceName(name))
-      log("forcing " + iface.owner + " at phase: " + phase + " impl: " + iface.implClass)
+      _log("forcing " + iface.owner + " at phase: " + phase + " impl: " + iface.implClass)
       iface.owner.info // force the mixin type-transformer
       rootMirror.getClassByName(name)
     }
@@ -1048,7 +1048,7 @@ abstract class ICodeReader extends ClassfileParser {
             case None =>
               val l = freshLocal(kind)
               locals(idx) = (l, kind) :: locals(idx)
-              log("Expected kind " + kind + " for local " + idx +
+              _log("Expected kind " + kind + " for local " + idx +
                 " but only " + ls + " found. Added new local.")
               l
           }

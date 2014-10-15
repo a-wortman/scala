@@ -677,12 +677,12 @@ abstract class BCodeBodyBuilder extends BCodeSkelBuilder with Logging {
                   val qualSym = findHostClass(qual.tpe, sym)
                   if (qualSym == ArrayClass) {
                     targetTypeKind = tpeTK(qual)
-                    log(s"Stored target type kind for ${sym.fullName} as $targetTypeKind")
+                    _log(s"Stored target type kind for ${sym.fullName} as $targetTypeKind")
                   }
                   else {
                     hostClass = qualSym
                     if (qual.tpe.typeSymbol != qualSym) {
-                      log(s"Precisified host class for $sym from ${qual.tpe.typeSymbol.fullName} to ${qualSym.fullName}")
+                      _log(s"Precisified host class for $sym from ${qual.tpe.typeSymbol.fullName} to ${qualSym.fullName}")
                     }
                   }
 

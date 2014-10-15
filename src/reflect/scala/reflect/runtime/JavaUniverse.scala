@@ -19,12 +19,12 @@ class JavaUniverse extends InternalSymbolTable with JavaUniverseForce with Refle
   lazy val settings = new Settings
 
   //private val isLogging = sys.props contains "scala.debug.reflect"
-  //def log(msg: => AnyRef): Unit = if (isLogging) Console.err.println("[reflect] " + msg)
+  //def _log(msg: => AnyRef): Unit = if (isLogging) Console.err.println("[reflect] " + msg)
 
   // TODO: why put output under isLogging? Calls to inform are already conditional on debug/verbose/...
   import scala.reflect.internal.{Reporter, ReporterImpl}
   override def reporter: Reporter = new ReporterImpl {
-    protected def info0(pos: Position, msg: String, severity: Severity, force: Boolean): Unit = log(msg)
+    protected def info0(pos: Position, msg: String, severity: Severity, force: Boolean): Unit = _log(msg)
   }
 
   // minimal Run to get Reporting wired

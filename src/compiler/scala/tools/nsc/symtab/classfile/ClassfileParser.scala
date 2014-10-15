@@ -860,7 +860,7 @@ abstract class ClassfileParser extends Logging{
         case tpnme.CodeATTR =>
           if (sym.owner.isInterface) {
             sym setFlag DEFAULTMETHOD
-            log(s"$sym in ${sym.owner} is a java8+ default method.")
+            _log(s"$sym in ${sym.owner} is a java8+ default method.")
           }
           in.skip(attrLen)
         case _ =>

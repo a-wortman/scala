@@ -44,7 +44,7 @@ trait TypeAdaptingTransformer extends Logging {
     @inline def box(tree: Tree, target: => String): Tree = {
       val result = box1(tree)
       if (tree.tpe =:= UnitTpe) ()
-      else log(s"boxing ${tree.summaryString}: ${tree.tpe} into $target: ${result.tpe}")
+      else _log(s"boxing ${tree.summaryString}: ${tree.tpe} into $target: ${result.tpe}")
       result
     }
 
@@ -73,7 +73,7 @@ trait TypeAdaptingTransformer extends Logging {
                * fields (see TupleX). (ID)
                */
               case Apply(boxFun, List(arg)) if isSafelyRemovableUnbox(tree, arg) =>
-                log(s"boxing an unbox: ${tree.symbol} -> ${arg.tpe}")
+                _log(s"boxing an unbox: ${tree.symbol} -> ${arg.tpe}")
                 arg
               case _ =>
                 (REF(currentRun.runDefinitions.boxMethod(x)) APPLY tree) setPos (tree.pos) setType ObjectTpe
@@ -85,7 +85,7 @@ trait TypeAdaptingTransformer extends Logging {
 
     def unbox(tree: Tree, pt: Type): Tree = {
       val result = unbox1(tree, pt)
-      log(s"unboxing ${tree.shortClass}: ${tree.tpe} as a ${result.tpe}")
+      _log(s"unboxing ${tree.shortClass}: ${tree.tpe} as a ${result.tpe}")
       result
     }
 
@@ -142,11 +142,11 @@ trait TypeAdaptingTransformer extends Logging {
           else if (tree.tpe weak_<:< pt) "widen"
           else "cast"
         )
-        log(s"erasure ${word}s from ${tree.tpe} to $pt")
+        _log(s"erasure ${word}s from ${tree.tpe} to $pt")
       }
       if (pt =:= UnitTpe) {
         // See SI-4731 for one example of how this occurs.
-        log("Attempted to cast to Unit: " + tree)
+        _log("Attempted to cast to Unit: " + tree)
         tree.duplicate setType pt
       } else if (tree.tpe != null && tree.tpe.typeSymbol == ArrayClass && pt.typeSymbol == ArrayClass) {
         // See SI-2386 for one example of when this might be necessary.
@@ -164,7 +164,7 @@ trait TypeAdaptingTransformer extends Logging {
      */
     def adaptToType(tree: Tree, pt: Type): Tree = {
       if (settings.debug && pt != WildcardType)
-        log("adapting " + tree + ":" + tree.tpe + " : " +  tree.tpe.parents + " to " + pt)//debug
+        _log("adapting " + tree + ":" + tree.tpe + " : " +  tree.tpe.parents + " to " + pt)//debug
       if (tree.tpe <:< pt)
         tree
       else if (isDifferentErasedValueType(tree.tpe, pt))

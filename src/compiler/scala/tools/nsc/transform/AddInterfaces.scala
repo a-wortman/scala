@@ -81,7 +81,7 @@ abstract class AddInterfaces extends InfoTransform { self: Erasure =>
             NoSymbol
           }
           else {
-            log(s"not unlinking $iface's existing implClass ${implSym.name} because it is not on the classpath.")
+            _log(s"not unlinking $iface's existing implClass ${implSym.name} because it is not on the classpath.")
             implSym
           }
       }
@@ -113,7 +113,7 @@ abstract class AddInterfaces extends InfoTransform { self: Erasure =>
       if (iface.implClass eq NoSymbol)
         debuglog(s"${iface.fullLocationString} has no implClass yet, creating it now.")
       else
-        log(s"${iface.fullLocationString} impl class is ${iface.implClass.nameString}")
+        _log(s"${iface.fullLocationString} impl class is ${iface.implClass.nameString}")
 
       newImplClass(iface)
     })
@@ -139,7 +139,7 @@ abstract class AddInterfaces extends InfoTransform { self: Erasure =>
 
       val decls = newScope
       if ((ifaceDecls lookup nme.MIXIN_CONSTRUCTOR) == NoSymbol) {
-        log("Adding mixin constructor to " + implClass)
+        _log("Adding mixin constructor to " + implClass)
 
         decls enter (
           implClass.newMethod(nme.MIXIN_CONSTRUCTOR, implClass.pos)
@@ -155,11 +155,11 @@ abstract class AddInterfaces extends InfoTransform { self: Erasure =>
             decls enter clone
             sym setFlag lateDEFERRED
             if (!sym.isSpecialized)
-              log(s"Cloned ${sym.name} from ${sym.owner} into implClass ${implClass.fullName}")
+              _log(s"Cloned ${sym.name} from ${sym.owner} into implClass ${implClass.fullName}")
           }
         }
         else {
-          log(s"Destructively modifying owner of $sym from ${sym.owner} to $implClass")
+          _log(s"Destructively modifying owner of $sym from ${sym.owner} to $implClass")
           sym.owner = implClass
           // note: OK to destructively modify the owner here,
           // because symbol will not be accessible from outside the sourcefile.

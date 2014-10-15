@@ -84,15 +84,15 @@ abstract class GenASM extends SubComponent with BytecodeWriters with GenJVMASM w
           if (settings.mainClass.isDefault) {
             entryPoints map (_.symbol fullName '.') match {
               case Nil      =>
-                log("No Main-Class designated or discovered.")
+                _log("No Main-Class designated or discovered.")
               case name :: Nil =>
-                log("Unique entry point: setting Main-Class to " + name)
+                _log("Unique entry point: setting Main-Class to " + name)
                 settings.mainClass.value = name
               case names =>
-                log("No Main-Class due to multiple entry points:\n  " + names.mkString("\n  "))
+                _log("No Main-Class due to multiple entry points:\n  " + names.mkString("\n  "))
             }
           }
-          else log("Main-Class was specified: " + settings.mainClass.value)
+          else _log("Main-Class was specified: " + settings.mainClass.value)
 
           new DirectToJarfileWriter(f.file)
 
@@ -108,7 +108,7 @@ abstract class GenASM extends SubComponent with BytecodeWriters with GenJVMASM w
       if (settings.Xdce) {
         val classes = icodes.classes.keys.toList // copy to avoid mutating the map while iterating
         for (sym <- classes if inliner.isClosureClass(sym) && !deadCode.liveClosures(sym)) {
-          log(s"Optimizer eliminated ${sym.fullNameString}")
+          _log(s"Optimizer eliminated ${sym.fullNameString}")
           deadCode.elidedClosures += sym
           icodes.classes -= sym
         }
@@ -136,7 +136,7 @@ abstract class GenASM extends SubComponent with BytecodeWriters with GenJVMASM w
           if (c.symbol.companionClass == NoSymbol)
             mirrorCodeGen genMirrorClass (c.symbol, c.cunit)
           else
-            log(s"No mirror class for module with linked class: ${c.symbol.fullName}")
+            _log(s"No mirror class for module with linked class: ${c.symbol.fullName}")
         }
         plainCodeGen genClass c
         if (c.symbol hasAnnotation BeanInfoAttr) beanInfoCodeGen genBeanInfoClass c
@@ -1016,9 +1016,9 @@ abstract class GenASM extends SubComponent with BytecodeWriters with GenJVMASM w
         if (m.isType || m.isDeferred || (m.owner eq ObjectClass) || m.isConstructor)
           debuglog(s"No forwarder for '$m' from $jclassName to '$moduleClass'")
         else if (conflictingNames(m.name))
-          log(s"No forwarder for $m due to conflict with " + linkedClass.info.member(m.name))
+          _log(s"No forwarder for $m due to conflict with " + linkedClass.info.member(m.name))
         else if (m.hasAccessBoundary)
-          log(s"No forwarder for non-public member $m")
+          _log(s"No forwarder for non-public member $m")
         else {
           debuglog(s"Adding static forwarder for '$m' from $jclassName to '$moduleClass'")
           addForwarder(isRemoteClass, jclass, moduleClass, m)
@@ -1268,7 +1268,7 @@ abstract class GenASM extends SubComponent with BytecodeWriters with GenJVMASM w
               exitingPickler { !(lmoc.name.toString contains '$') && lmoc.hasModuleFlag && !lmoc.isImplClass && !lmoc.isNestedClass }
             }
             if (isCandidateForForwarders) {
-              log("Adding static forwarders from '%s' to implementations in '%s'".format(c.symbol, lmoc))
+              _log("Adding static forwarders from '%s' to implementations in '%s'".format(c.symbol, lmoc))
               addForwarders(isRemote(clasz.symbol), jclass, thisName, lmoc.moduleClass)
             }
           }
@@ -1398,7 +1398,7 @@ abstract class GenASM extends SubComponent with BytecodeWriters with GenJVMASM w
           // add a fake local for debugging purposes
           val outerField = clasz.symbol.info.decl(nme.OUTER_LOCAL)
           if (outerField != NoSymbol) {
-            log("Adding fake local to represent outer 'this' for closure " + clasz)
+            _log("Adding fake local to represent outer 'this' for closure " + clasz)
             val _this =
               new Local(method.symbol.newVariable(nme.FAKE_LOCAL_THIS),
                         toTypeKind(outerField.tpe),
@@ -2764,7 +2764,7 @@ abstract class GenASM extends SubComponent with BytecodeWriters with GenJVMASM w
                                      JAVA_LANG_OBJECT.getInternalName,
                                      EMPTY_STRING_ARRAY)
 
-      log(s"Dumping mirror class for '$mirrorName'")
+      _log(s"Dumping mirror class for '$mirrorName'")
 
       // typestate: entering mode with valid call sequences:
       //   [ visitSource ] [ visitOuterClass ] ( visitAnnotation | visitAttribute )*
@@ -3202,7 +3202,7 @@ abstract class GenASM extends SubComponent with BytecodeWriters with GenJVMASM w
     if (jsOpt.isEmpty) { return null }
 
     val sig = jsOpt.get
-    log(sig) // This seems useful enough in the general case.
+    _log(sig) // This seems useful enough in the general case.
 
         def wrap(op: => Unit) = {
           try   { op; true }

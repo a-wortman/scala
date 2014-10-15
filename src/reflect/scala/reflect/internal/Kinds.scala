@@ -147,9 +147,9 @@ trait Kinds {
       }
 
       if (settings.debug) {
-        log("checkKindBoundsHK expected: "+ param +" with params "+ hkparams +" by definition in "+ paramowner)
-        log("checkKindBoundsHK supplied: "+ arg +" with params "+ hkargs +" from "+ owner)
-        log("checkKindBoundsHK under params: "+ underHKParams +" with args "+ withHKArgs)
+        _log("checkKindBoundsHK expected: "+ param +" with params "+ hkparams +" by definition in "+ paramowner)
+        _log("checkKindBoundsHK supplied: "+ arg +" with params "+ hkargs +" from "+ owner)
+        _log("checkKindBoundsHK under params: "+ underHKParams +" with args "+ withHKArgs)
       }
 
       if (!sameLength(hkargs, hkparams)) {
@@ -203,7 +203,7 @@ trait Kinds {
       else NoKindErrors
     }
 
-    if (settings.debug && (tparams.nonEmpty || targs.nonEmpty)) log(
+    if (settings.debug && (tparams.nonEmpty || targs.nonEmpty)) _log(
       "checkKindBounds0(" + tparams + ", " + targs + ", " + pre + ", "
       + owner + ", " + explainErrors + ")"
     )

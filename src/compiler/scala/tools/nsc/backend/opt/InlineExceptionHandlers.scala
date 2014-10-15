@@ -159,7 +159,7 @@ abstract class InlineExceptionHandlers extends SubComponent with Logging {
         // If not, then nothing to do, we cannot determine statically which handler will catch the exception
         (handler, caughtException)    <- findExceptionHandler(toTypeKind(clazz.tpe), bblock.exceptionSuccessors)
       } {
-        log("   Replacing " + instr + " in " + bblock + " to new handler")
+        _log("   Replacing " + instr + " in " + bblock + " to new handler")
 
         // Solve the stack and drop the element that we already stored, which should be the exception
         // needs to be done here to be the first thing before code becomes altered
@@ -168,7 +168,7 @@ abstract class InlineExceptionHandlers extends SubComponent with Logging {
         // Duplicate exception handler
         duplicateExceptionHandlerCache(handler) match {
           case None =>
-            log("   Could not duplicate handler for " + instr + " in " + bblock)
+            _log("   Could not duplicate handler for " + instr + " in " + bblock)
 
           case Some((exceptionLocalOpt, newHandler)) =>
             val onStackException = typeInfo.head
@@ -222,8 +222,8 @@ abstract class InlineExceptionHandlers extends SubComponent with Logging {
               bblock.touched = true
               newHandler.touched = true
 
-              log("   Replaced  " + instr + " in " + bblock + " to new handler")
-              log("OPTIMIZED class " + currentClass + " method " +
+              _log("   Replaced  " + instr + " in " + bblock + " to new handler")
+              _log("OPTIMIZED class " + currentClass + " method " +
                 bblock.method + " block " + bblock + " newhandler " +
                 newHandler + ":\n\t\t" + onStackException + " <:< " +
                 thrownException + " <:< " + caughtException)
@@ -242,14 +242,14 @@ abstract class InlineExceptionHandlers extends SubComponent with Logging {
       var typeInfo = getTypesAtBlockEntry(bblock)
 
       // perform tfa to the current instruction
-      log("         stack at the beginning of block " + bblock + " in function " +
+      _log("         stack at the beginning of block " + bblock + " in function " +
         bblock.method + ": " + typeInfo.stack)
       for (i <- 0 to (index - 1)) {
         typeInfo = tfa.interpret(typeInfo, bblock(i))
-        log("         stack after interpret: " + typeInfo.stack + " after instruction " +
+        _log("         stack after interpret: " + typeInfo.stack + " after instruction " +
           bblock(i))
       }
-      log("         stack before instruction " + index + " of block " + bblock + " in function " +
+      _log("         stack before instruction " + index + " of block " + bblock + " in function " +
         bblock.method + ": " + typeInfo.stack)
 
       // return the result
@@ -268,17 +268,17 @@ abstract class InlineExceptionHandlers extends SubComponent with Logging {
         analyzedMethod = bblock.method
         tfa.init(bblock.method)
         tfa.run()
-        log("      performed tfa on method: " + bblock.method)
+        _log("      performed tfa on method: " + bblock.method)
 
         for (block <- bblock.method.blocks.sortBy(_.label))
           tfaCache += block.label -> tfa.in(block)
       }
 
-      log("         getting typeinfo at the beginning of block " + bblock)
+      _log("         getting typeinfo at the beginning of block " + bblock)
 
       tfaCache.getOrElse(bblock.label, {
         // this block was not analyzed, but it's a copy of some other block so its stack should be the same
-        log("         getting typeinfo at the beginning of block " + bblock + " as a copy of " +
+        _log("         getting typeinfo at the beginning of block " + bblock + " as a copy of " +
           handlerCopiesInverted(bblock))
         val (origBlock, exception) = handlerCopiesInverted(bblock)
         val typeInfo               = getTypesAtBlockEntry(origBlock)
@@ -299,8 +299,8 @@ abstract class InlineExceptionHandlers extends SubComponent with Logging {
       * try {
       *   throw new IllegalArgumentException("...")
       * } catch {
-      *   case e: RuntimeException => log("RuntimeException")
-      *   case i: IllegalArgumentException => log("IllegalArgumentException")
+      *   case e: RuntimeException => _log("RuntimeException")
+      *   case i: IllegalArgumentException => _log("IllegalArgumentException")
       * }
       * }}}
       *
@@ -352,7 +352,7 @@ abstract class InlineExceptionHandlers extends SubComponent with Logging {
 
     /** This function takes care of actual duplication */
     private def duplicateExceptionHandler(handler: BasicBlock): Option[(Option[Local], BasicBlock)] = {
-      log("      duplicating handler block " + handler)
+      _log("      duplicating handler block " + handler)
 
       handler take 2 match {
         case Seq(LOAD_EXCEPTION(caughtClass), next) =>
@@ -375,7 +375,7 @@ abstract class InlineExceptionHandlers extends SubComponent with Logging {
           // notify the successors of the inlined handler might have changed
           copy.touched    = true
           handler.touched = true
-          log("      duplicated  handler block " + handler + " to " + copy)
+          _log("      duplicated  handler block " + handler + " to " + copy)
 
           // announce the duplicate handler
           handlerCopiesInverted(copy) = ((handler, caughtException))

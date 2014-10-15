@@ -86,7 +86,7 @@ package object reflect {
     val NSC_ERROR = ERROR
 
     def display(pos: Position, msg: String, nscSeverity: NscSeverity): Unit =
-      frontEnd.log(pos, msg, nscSeverity match {
+      frontEnd._log(pos, msg, nscSeverity match {
         case NSC_INFO => API_INFO
         case NSC_WARNING => API_WARNING
         case NSC_ERROR => API_ERROR

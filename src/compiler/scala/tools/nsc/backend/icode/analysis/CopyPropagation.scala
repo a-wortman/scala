@@ -478,7 +478,7 @@ abstract class CopyPropagation extends Logging {
     final def invalidateRecords(state: copyLattice.State) {
       def shouldRetain(sym: Symbol): Boolean = {
         if (sym.isMutable)
-          log("dropping binding for " + sym.fullName)
+          _log("dropping binding for " + sym.fullName)
         !sym.isMutable
       }
       state.stack = state.stack map { v => v match {

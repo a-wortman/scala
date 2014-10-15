@@ -47,7 +47,7 @@ abstract class Constructors extends Statics with Transform with ast.TreeDSL with
         stats collect { case vd: ValDef if checkableForInit(vd.symbol) => vd.symbol.accessedOrSelf }: _*
       )
       if (uninitializedVals.size > 1)
-        log("Checking constructor for init order issues among: " + uninitializedVals.toList.map(_.name.toString.trim).distinct.sorted.mkString(", "))
+        _log("Checking constructor for init order issues among: " + uninitializedVals.toList.map(_.name.toString.trim).distinct.sorted.mkString(", "))
 
       for (stat <- stats) {
         // Checking the qualifier symbol is necessary to prevent a selection on
@@ -375,16 +375,16 @@ abstract class Constructors extends Statics with Transform with ast.TreeDSL with
         adapter.transform(tree)
       }
 
-      log("merging: " + originalStats.mkString("\n") + "\nwith\n" + specializedStats.mkString("\n"))
+      _log("merging: " + originalStats.mkString("\n") + "\nwith\n" + specializedStats.mkString("\n"))
       val res = for (s <- originalStats; stat = s.duplicate) yield {
-        log("merge: looking at " + stat)
+        _log("merge: looking at " + stat)
         val stat1 = stat match {
           case Assign(sel @ Select(This(_), field), _) =>
             specializedAssignFor(sel.symbol).getOrElse(stat)
           case _ => stat
         }
         if (stat1 ne stat) {
-          log("replaced " + stat + " with " + stat1)
+          _log("replaced " + stat + " with " + stat1)
           specBuf -= stat1
         }
 

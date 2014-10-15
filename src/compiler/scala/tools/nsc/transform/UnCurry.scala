@@ -81,7 +81,7 @@ abstract class UnCurry extends InfoTransform
 
     private def newFunction0(body: Tree): Tree = {
       val result = localTyper.typedPos(body.pos)(Function(Nil, body)).asInstanceOf[Function]
-      log("Change owner from %s to %s in %s".format(currentOwner, result.symbol, result.body))
+      _log("Change owner from %s to %s in %s".format(currentOwner, result.symbol, result.body))
       result.body changeOwner (currentOwner -> result.symbol)
       transformFunction(result)
     }
@@ -333,7 +333,7 @@ abstract class UnCurry extends InfoTransform
           arg setType functionType(Nil, arg.tpe)
         }
         else {
-          log(s"Argument '$arg' at line ${arg.pos.line} is $formal from ${fun.fullName}")
+          _log(s"Argument '$arg' at line ${arg.pos.line} is $formal from ${fun.fullName}")
           def canUseDirectly(recv: Tree) = (
                recv.tpe.typeSymbol.isSubClass(FunctionClass(0))
             && treeInfo.isExprSafeToInline(recv)
@@ -375,7 +375,7 @@ abstract class UnCurry extends InfoTransform
      */
     private def translateSynchronized(tree: Tree) = tree match {
       case dd @ DefDef(_, _, _, _, _, Apply(fn, body :: Nil)) if isSelfSynchronized(dd) =>
-        log("Translating " + dd.symbol.defString + " into synchronized method")
+        _log("Translating " + dd.symbol.defString + " into synchronized method")
         dd.symbol setFlag SYNCHRONIZED
         deriveDefDef(dd)(_ => body)
       case _ => tree
@@ -598,7 +598,7 @@ abstract class UnCurry extends InfoTransform
         case Select(_, _) | TypeApply(_, _) =>
           applyUnary()
         case ret @ Return(expr) if isNonLocalReturn(ret) =>
-          log("non-local return from %s to %s".format(currentOwner.enclMethod, ret.symbol))
+          _log("non-local return from %s to %s".format(currentOwner.enclMethod, ret.symbol))
           atPos(ret.pos)(nonLocalReturnThrow(expr, ret.symbol))
         case TypeTree() =>
           tree

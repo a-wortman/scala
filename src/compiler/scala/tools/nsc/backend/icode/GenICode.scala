@@ -556,7 +556,7 @@ abstract class GenICode extends SubComponent with Logging {
                 case Finalizer(f, finalizerCtx) =>
                   debuglog("removing " + f + " from cleanups: " + ctx1.cleanups)
                   if (returnedKind != UNIT && mayCleanStack(f)) {
-                    log("Emitting STORE_LOCAL for " + tmp + " to save finalizer.")
+                    _log("Emitting STORE_LOCAL for " + tmp + " to save finalizer.")
                     ctx1.bb.emit(STORE_LOCAL(tmp))
                     savedFinalizer = true
                   }
@@ -576,7 +576,7 @@ abstract class GenICode extends SubComponent with Logging {
             }
 
             if (saved) {
-              log("Emitting LOAD_LOCAL for " + tmp + " after saving finalizer.")
+              _log("Emitting LOAD_LOCAL for " + tmp + " after saving finalizer.")
               ctx1.bb.emit(LOAD_LOCAL(tmp))
             }
             adapt(returnedKind, ctx1.method.returnType, ctx1, tree.pos)
@@ -788,12 +788,12 @@ abstract class GenICode extends SubComponent with Logging {
                   if (qualSym == ArrayClass) {
                     val kind = toTypeKind(qual.tpe)
                     cm setTargetTypeKind kind
-                    log(s"Stored target type kind for {$sym.fullName} as $kind")
+                    _log(s"Stored target type kind for {$sym.fullName} as $kind")
                   }
                   else {
                     cm setHostClass qualSym
                     if (qual.tpe.typeSymbol != qualSym)
-                      log(s"Precisified host class for $sym from ${qual.tpe.typeSymbol.fullName} to ${qualSym.fullName}")
+                      _log(s"Precisified host class for $sym from ${qual.tpe.typeSymbol.fullName} to ${qualSym.fullName}")
                   }
                 case _ =>
               }
@@ -1757,7 +1757,7 @@ abstract class GenICode extends SubComponent with Logging {
             tree.symbol = newSym
 
             val pair = (newSym -> (new Label(newSym) setParams (params map (_.symbol))))
-            log("Added " + pair + " to labels.")
+            _log("Added " + pair + " to labels.")
             ctx.labels += pair
             ctx.method.addLocals(params map (p => new Local(p.symbol, toTypeKind(p.symbol.info), false)))
 

@@ -149,7 +149,7 @@ trait Trees extends scala.reflect.internal.Trees { self: Global =>
       }
       catch {
         case ex: Exception =>
-          log(supplementErrorMessage("unhandled exception while transforming "+unit))
+          _log(supplementErrorMessage("unhandled exception while transforming "+unit))
           throw ex
       }
     }

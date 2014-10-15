@@ -177,7 +177,7 @@ abstract class BCodeSkelBuilder extends BCodeHelpers with Logging {
               exitingPickler { !(lmoc.name.toString contains '$') && lmoc.hasModuleFlag && !lmoc.isImplClass && !lmoc.isNestedClass }
             }
             if (isCandidateForForwarders) {
-              log(s"Adding static forwarders from '$claszSymbol' to implementations in '$lmoc'")
+              _log(s"Adding static forwarders from '$claszSymbol' to implementations in '$lmoc'")
               addForwarders(isRemote(claszSymbol), cnode, thisName, lmoc.moduleClass)
             }
           }

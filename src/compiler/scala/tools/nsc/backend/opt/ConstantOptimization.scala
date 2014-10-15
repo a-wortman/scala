@@ -54,7 +54,7 @@ abstract class ConstantOptimization extends SubComponent with Logging {
 
   class ConstantOptimizer {
     def optimizeClass(cls: IClass) {
-      log(s"Analyzing ${cls.methods.size} methods in $cls.")
+      _log(s"Analyzing ${cls.methods.size} methods in $cls.")
       cls.methods foreach { m =>
         optimizeMethod(m)
       }
@@ -62,7 +62,7 @@ abstract class ConstantOptimization extends SubComponent with Logging {
 
     def optimizeMethod(m: IMethod) {
       if (m.hasCode) {
-        log(s"Analyzing ${m.symbol}")
+        _log(s"Analyzing ${m.symbol}")
         val replacementInstructions = interpretMethod(m)
         for (block <- m.blocks) {
           if (replacementInstructions contains block) {

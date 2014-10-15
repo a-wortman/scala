@@ -275,7 +275,7 @@ trait Erasure extends Logging {
       val res = javaErasure(tp)
       val old = scalaErasure(tp)
       if (!(res =:= old))
-        log("Identified divergence between java/scala erasure:\n  scala: " + old + "\n   java: " + res)
+        _log("Identified divergence between java/scala erasure:\n  scala: " + old + "\n   java: " + res)
       res
     }
   }

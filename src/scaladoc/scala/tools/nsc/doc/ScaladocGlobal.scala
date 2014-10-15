@@ -31,7 +31,7 @@ trait ScaladocGlobalTrait extends Global {
     // therefore, it will rummage through the classpath triggering errors whenever it encounters package objects
     // that are not in their correct place (see bug for details)
     override protected def signalError(root: Symbol, ex: Throwable) {
-      log(s"Suppressing error involving $root: $ex")
+      _log(s"Suppressing error involving $root: $ex")
     }
   }
 }

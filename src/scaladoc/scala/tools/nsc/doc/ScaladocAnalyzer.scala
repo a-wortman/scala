@@ -236,7 +236,7 @@ abstract class ScaladocSyntaxAnalyzer[G <: Global](val global: G) extends Syntax
     override def joinComment(trees: => List[Tree]): List[Tree] = {
       val doc = in.flushDoc
       if ((doc ne null) && doc.raw.length > 0) {
-        log(s"joinComment(doc=$doc)")
+        _log(s"joinComment(doc=$doc)")
         val joined = trees map {
           t =>
             DocDef(doc, t) setPos {

@@ -220,7 +220,7 @@ abstract class ExtensionMethods extends Transform with TypingTransformers with L
           val newInfo       = extensionMethInfo(extensionMeth, origMeth.info, origThis)
           extensionMeth setInfo newInfo
 
-          log(s"Value class $origThis spawns extension method.\n  Old: ${origMeth.defString}\n  New: ${extensionMeth.defString}")
+          _log(s"Value class $origThis spawns extension method.\n  Old: ${origMeth.defString}\n  New: ${extensionMeth.defString}")
 
           val GenPolyType(extensionTpeParams, MethodType(thiz :: Nil, extensionMono)) = newInfo
           val extensionParams = allParameters(extensionMono)

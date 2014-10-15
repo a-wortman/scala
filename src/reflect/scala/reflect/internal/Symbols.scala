@@ -193,7 +193,7 @@ trait Symbols extends api.Symbols { self: SymbolTable =>
     def name_=(n: Name): Unit = {
       if (shouldLogAtThisPhase) {
         def msg = s"In $owner, renaming $name -> $n"
-        if (isSpecialized) debuglog(msg) else log(msg)
+        if (isSpecialized) debuglog(msg) else _log(msg)
       }
     }
     def asNameType(n: Name): NameType

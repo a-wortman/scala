@@ -45,7 +45,7 @@ abstract class ClosureElimination extends SubComponent with Logging {
             idx -= 1
           }
           if (!liveOut(x)) {
-            log("Removing dead store/load of " + x.sym.initialize.defString)
+            _log("Removing dead store/load of " + x.sym.initialize.defString)
             Some(Nil)
           } else None
         } else
@@ -85,7 +85,7 @@ abstract class ClosureElimination extends SubComponent with Logging {
    */
   class ClosureElim {
     def analyzeClass(cls: IClass): Unit = if (settings.Xcloselim) {
-      log(s"Analyzing ${cls.methods.size} methods in $cls.")
+      _log(s"Analyzing ${cls.methods.size} methods in $cls.")
       cls.methods foreach { m =>
         analyzeMethod(m)
         peephole(m)

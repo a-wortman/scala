@@ -1603,8 +1603,8 @@ trait Typers extends Adaptations with Tags with TypersTracking with PatternTyper
             // @H none of the tests enter here but I couldn't rule it out
             // upd. @E when a definition inherits itself, we end up here
             // because `typedParentType` triggers `initialize` for parent types symbols
-            log("Type error calculating parents in template " + templ)
-            log("Error: " + ex)
+            _log("Type error calculating parents in template " + templ)
+            _log("Error: " + ex)
             ParentTypesError(templ, ex)
             List(TypeTree(AnyRefTpe))
         }
@@ -2093,7 +2093,7 @@ trait Typers extends Adaptations with Tags with TypersTracking with PatternTyper
            */
           def checkAbstract(tp0: Type, what: String): Boolean = {
             def check(sym: Symbol): Boolean = !sym.isAbstractType || {
-              log(s"""checking $tp0 in refinement$parentString at ${meth.owner.owner.fullLocationString}""")
+              _log(s"""checking $tp0 in refinement$parentString at ${meth.owner.owner.fullLocationString}""")
               (    (!sym.hasTransOwner(meth.owner) && failStruct(paramPos, "an abstract type defined outside that refinement", what))
                 || (!sym.hasTransOwner(meth) && failStruct(paramPos, "a type member of that refinement", what))
                 || checkAbstract(sym.info.bounds.hi, "Type bound")
@@ -2377,7 +2377,7 @@ trait Typers extends Adaptations with Tags with TypersTracking with PatternTyper
         // but not in real life (i.e., now that's we've reset the method's type skolems'
         //   infos back to their pre-GADT-constraint state)
         if (isFullyDefined(pt) && !(body1.tpe <:< pt)) {
-          log(s"Adding cast to pattern because ${body1.tpe} does not conform to expected type $pt")
+          _log(s"Adding cast to pattern because ${body1.tpe} does not conform to expected type $pt")
           body1 = typedPos(body1.pos)(gen.mkCast(body1, pt.dealiasWiden))
         }
       }
@@ -2936,7 +2936,7 @@ trait Typers extends Adaptations with Tags with TypersTracking with PatternTyper
 
     def typedImport(imp : Import) : Import = (transformed remove imp) match {
       case Some(imp1: Import) => imp1
-      case _                  => log("unhandled import: "+imp+" in "+unit); imp
+      case _                  => _log("unhandled import: "+imp+" in "+unit); imp
     }
 
     def typedStats(stats: List[Tree], exprOwner: Symbol): List[Tree] = {
@@ -3003,7 +3003,7 @@ trait Typers extends Adaptations with Tags with TypersTracking with PatternTyper
               // error for this is issued in RefChecks.checkDefaultsInOverloaded
               if (!e.sym.isErroneous && !e1.sym.isErroneous && !e.sym.hasDefault &&
                   !e.sym.hasAnnotation(BridgeClass) && !e1.sym.hasAnnotation(BridgeClass)) {
-                log("Double definition detected:\n  " +
+                _log("Double definition detected:\n  " +
                     ((e.sym.getClass, e.sym.info, e.sym.ownerChain)) + "\n  " +
                     ((e1.sym.getClass, e1.sym.info, e1.sym.ownerChain)))
 

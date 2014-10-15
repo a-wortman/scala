@@ -151,15 +151,15 @@ abstract class BCodeHelpers extends BCodeIdiomatic with BytecodeWriters with Log
         if (settings.mainClass.isDefault) {
           entryPoints map (_.fullName('.')) match {
             case Nil      =>
-              log("No Main-Class designated or discovered.")
+              _log("No Main-Class designated or discovered.")
             case name :: Nil =>
-              log(s"Unique entry point: setting Main-Class to $name")
+              _log(s"Unique entry point: setting Main-Class to $name")
               settings.mainClass.value = name
             case names =>
-              log(s"No Main-Class due to multiple entry points:\n  ${names.mkString("\n  ")}")
+              _log(s"No Main-Class due to multiple entry points:\n  ${names.mkString("\n  ")}")
           }
         }
-        else log(s"Main-Class was specified: ${settings.mainClass.value}")
+        else _log(s"Main-Class was specified: ${settings.mainClass.value}")
 
         new DirectToJarfileWriter(f.file)
 
@@ -732,11 +732,11 @@ abstract class BCodeHelpers extends BCodeIdiomatic with BytecodeWriters with Log
         if (m.isType || m.isDeferred || (m.owner eq definitions.ObjectClass) || m.isConstructor)
           debuglog(s"No forwarder for '$m' from $jclassName to '$moduleClass'")
         else if (conflictingNames(m.name))
-          log(s"No forwarder for $m due to conflict with ${linkedClass.info.member(m.name)}")
+          _log(s"No forwarder for $m due to conflict with ${linkedClass.info.member(m.name)}")
         else if (m.hasAccessBoundary)
-          log(s"No forwarder for non-public member $m")
+          _log(s"No forwarder for non-public member $m")
         else {
-          log(s"Adding static forwarder for '$m' from $jclassName to '$moduleClass'")
+          _log(s"Adding static forwarder for '$m' from $jclassName to '$moduleClass'")
           addForwarder(isRemoteClass, jclass, moduleClass, m)
         }
       }

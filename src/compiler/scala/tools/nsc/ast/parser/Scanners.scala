@@ -1318,7 +1318,7 @@ trait Scanners extends ScannersCommon {
     }
 
     init()
-    log(s"ParensAnalyzer for ${unit.source} of length ${unit.source.content.length}\n```\n$markedSource\n```")
+    _log(s"ParensAnalyzer for ${unit.source} of length ${unit.source.content.length}\n```\n$markedSource\n```")
 
     /** The offset of the first token on this line, or next following line if blank
      */
@@ -1411,7 +1411,7 @@ trait Scanners extends ScannersCommon {
       def bpString    = bpbuf.toList map ("\n" + bracePairString(_, 0)) mkString ""
       def startString = lineStart.mkString("line starts: [", ", ", "]")
 
-      log(s"\n$startString\n$bpString")
+      _log(s"\n$startString\n$bpString")
       bpbuf.toList
     }
 

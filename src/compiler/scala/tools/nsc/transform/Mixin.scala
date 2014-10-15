@@ -392,7 +392,7 @@ abstract class Mixin extends InfoTransform with ast.TreeDSL with Logging {
           else {
             sourceModule setPos sym.pos
             if (sourceModule.flags != MODULE) {
-              log(s"!!! Directly setting sourceModule flags for $sourceModule from ${sourceModule.flagString} to MODULE")
+              _log(s"!!! Directly setting sourceModule flags for $sourceModule from ${sourceModule.flagString} to MODULE")
               sourceModule.flags = MODULE
             }
           }
@@ -857,7 +857,7 @@ abstract class Mixin extends InfoTransform with ast.TreeDSL with Logging {
         def syncBody  = init ::: List(mkSetFlag(clazz, offset, lzyVal, kind), UNIT)
 
         if (nulls.nonEmpty)
-          log("nulling fields inside " + lzyVal + ": " + nulls)
+          _log("nulling fields inside " + lzyVal + ": " + nulls)
 
         typedPos(init.head.pos)(mkFastPathLazyBody(clazz, lzyVal, cond, syncBody, nulls, retVal))
       }

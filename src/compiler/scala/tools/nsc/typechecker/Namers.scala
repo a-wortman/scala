@@ -320,7 +320,7 @@ trait Namers extends MethodSynthesis {
     def assignAndEnterFinishedSymbol(tree: MemberDef): Symbol = {
       val sym = assignAndEnterSymbol(tree)
       sym setInfo completerOf(tree)
-      // log("[+info] " + sym.fullLocationString)
+      // _log("[+info] " + sym.fullLocationString)
       sym
     }
 
@@ -329,7 +329,7 @@ trait Namers extends MethodSynthesis {
         case nme.IMPORT | nme.OUTER | nme.ANON_CLASS_NAME | nme.ANON_FUN_NAME | nme.CONSTRUCTOR => ()
         case _                                                                                  =>
           tree match {
-            case md: DefDef => log("[+symbol] " + sym.debugLocationString)
+            case md: DefDef => _log("[+symbol] " + sym.debugLocationString)
             case _          =>
           }
       }
@@ -727,7 +727,7 @@ trait Namers extends MethodSynthesis {
       // Suggested location only.
       if (mods.isImplicit) {
         if (primaryConstructorArity == 1) {
-          log("enter implicit wrapper "+tree+", owner = "+owner)
+          _log("enter implicit wrapper "+tree+", owner = "+owner)
           enterImplicitWrapper(tree)
         }
         else reporter.error(tree.pos, "implicit classes must accept exactly one primary constructor parameter")
@@ -755,7 +755,7 @@ trait Namers extends MethodSynthesis {
           for (tp1 @ TypeRef(_, sym, _) <- lo) {
             if (settings.breakCycles) {
               if (!sym.maybeInitialize) {
-                log(s"Cycle inspecting $lo for possible f-bounds: ${sym.fullLocationString}")
+                _log(s"Cycle inspecting $lo for possible f-bounds: ${sym.fullLocationString}")
                 return sym
               }
             }
@@ -781,7 +781,7 @@ trait Namers extends MethodSynthesis {
           if (needsCycleCheck) {
             // neg/t1224:  trait C[T] ; trait A { type T >: C[T] <: C[C[T]] }
             // To avoid an infinite loop on the above, we cannot break all cycles
-            log(s"Reinitializing info of $sym to catch any genuine cycles")
+            _log(s"Reinitializing info of $sym to catch any genuine cycles")
             sym reset sym.info
             sym.initialize
           }
@@ -791,7 +791,7 @@ trait Namers extends MethodSynthesis {
           else tp
         }
         if (needsCycleCheck) {
-          log(s"Needs cycle check: ${sym.debugLocationString}")
+          _log(s"Needs cycle check: ${sym.debugLocationString}")
           if (!typer.checkNonCyclic(tree.pos, tp))
             sym setInfo ErrorType
         }
@@ -971,7 +971,7 @@ trait Namers extends MethodSynthesis {
       // Allows isDerivedValueClass to look at the info.
       clazz setInfo pluginsTp
       if (clazz.isDerivedValueClass) {
-        log("Ensuring companion for derived value class " + cdef.name + " at " + cdef.pos.show)
+        _log("Ensuring companion for derived value class " + cdef.name + " at " + cdef.pos.show)
         clazz setFlag FINAL
         // Don't force the owner's info lest we create cycles as in SI-6357.
         enclosingNamerWithScope(clazz.owner.rawInfo.decls).ensureCompanionObject(cdef)
@@ -1387,7 +1387,7 @@ trait Namers extends MethodSynthesis {
     // may take type parameters, which are in scope in its bounds
     private def typeDefSig(tdef: TypeDef) = {
       val TypeDef(_, _, tparams, rhs) = tdef
-      // log("typeDefSig(" + tpsym + ", " + tparams + ")")
+      // _log("typeDefSig(" + tpsym + ", " + tparams + ")")
       val tparamSyms = typer.reenterTypeParams(tparams) //@M make tparams available in scope (just for this abstypedef)
       val tp = typer.typedType(rhs).tpe match {
         case TypeBounds(lt, rt) if (lt.isError || rt.isError) =>
@@ -1479,7 +1479,7 @@ trait Namers extends MethodSynthesis {
      * the type to the symbol, but it can if necessary).
      */
     def typeSig(tree: Tree): Type = {
-      // log("typeSig " + tree)
+      // _log("typeSig " + tree)
       /* For definitions, transform Annotation trees to AnnotationInfos, assign
        * them to the sym's annotations. Type annotations: see Typer.typedAnnotated
        * We have to parse definition annotations here (not in the typer when traversing
@@ -1552,9 +1552,9 @@ trait Namers extends MethodSynthesis {
     class LogTransitions[S](onEnter: S => String, onExit: S => String) {
       val enabled = settings.debug.value
       @inline final def apply[T](entity: S)(body: => T): T = {
-        if (enabled) log(onEnter(entity))
+        if (enabled) _log(onEnter(entity))
         try body
-        finally if (enabled) log(onExit(entity))
+        finally if (enabled) _log(onExit(entity))
       }
     }
     private val logDefinition = new LogTransitions[Symbol](

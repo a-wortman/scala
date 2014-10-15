@@ -90,7 +90,7 @@ abstract class ICodeCheckers extends Logging {
     /** A wrapper to route log messages to debug output also.
      */
     def logChecker(msg: String) = {
-      log(msg)
+      _log(msg)
       checkerDebug(msg)
     }
 
@@ -235,7 +235,7 @@ abstract class ICodeCheckers extends Logging {
 
       if (preds.nonEmpty) {
         in(bl) = (preds map out.apply) reduceLeft meet2
-        log("Input changed for block: " + bl +" to: " + in(bl))
+        _log("Input changed for block: " + bl +" to: " + in(bl))
       }
     }
 
@@ -446,9 +446,9 @@ abstract class ICodeCheckers extends Logging {
           if (!cond) icodeError(msg)
 
         if (settings.debug) {
-          log("PC: " + instr)
-          log("stack: " + stack)
-          log("================")
+          _log("PC: " + instr)
+          _log("stack: " + stack)
+          _log("================")
         }
         instr match {
           case THIS(clasz) =>

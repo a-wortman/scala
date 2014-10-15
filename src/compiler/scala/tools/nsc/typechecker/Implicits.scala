@@ -634,7 +634,7 @@ trait Implicits {
         }
         context.reporter.firstError match { // using match rather than foreach to avoid non local return.
           case Some(err) =>
-            log("implicit adapt failed: " + err.errMsg)
+            _log("implicit adapt failed: " + err.errMsg)
             return fail(err.errMsg)
           case None      =>
         }
@@ -850,7 +850,7 @@ trait Implicits {
             // seen divergence so far, we won't issue this error just yet, and instead temporarily
             // treat `i` as a failed candidate.
             saveDivergent(DivergentImplicitTypeError(tree, pt, i.sym))
-            log(s"discarding divergent implicit ${i.sym} during implicit search")
+            _log(s"discarding divergent implicit ${i.sym} during implicit search")
             SearchFailure
           } else {
             if (search.isFailure) {
@@ -1007,7 +1007,7 @@ trait Implicits {
           infoMap get sym match {
             case Some(infos1) =>
               if (infos1.nonEmpty && !(pre =:= infos1.head.pre.prefix)) {
-                log(s"Ignoring implicit members of $pre#$sym as it is also visible via another prefix: ${infos1.head.pre.prefix}")
+                _log(s"Ignoring implicit members of $pre#$sym as it is also visible via another prefix: ${infos1.head.pre.prefix}")
                 infoMap(sym) = List() // ambiguous prefix - ignore implicit members
               }
             case None =>
@@ -1411,7 +1411,7 @@ trait Implicits {
       }
 
       if (result.isFailure && settings.debug) // debuglog is not inlined for some reason
-        log("no implicits found for "+pt+" "+pt.typeSymbol.info.baseClasses+" "+implicitsOfExpectedType)
+        _log("no implicits found for "+pt+" "+pt.typeSymbol.info.baseClasses+" "+implicitsOfExpectedType)
 
       result
     }

@@ -2957,7 +2957,7 @@ trait Types
     // (undoLog is used to reset constraints to avoid piling up unrelated ones)
     def setInst(tp: Type): this.type = {
       if (tp eq this) {
-        log(s"TypeVar cycle: called setInst passing $this to itself.")
+        _log(s"TypeVar cycle: called setInst passing $this to itself.")
         return this
       }
       undoLog record this
@@ -4394,7 +4394,7 @@ trait Types
               val as = as0.distinct
               if (as.size == 1) as.head
               else if (depth.isZero) {
-                log("Giving up merging args: can't unify %s under %s".format(as.mkString(", "), tparam.fullLocationString))
+                _log("Giving up merging args: can't unify %s under %s".format(as.mkString(", "), tparam.fullLocationString))
                 // Don't return "Any" (or "Nothing") when we have to give up due to
                 // recursion depth. Return NoType, which prevents us from poisoning
                 // lublist's results. It can recognize the recursion and deal with it, but

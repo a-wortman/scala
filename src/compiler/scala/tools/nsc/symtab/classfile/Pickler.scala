@@ -155,7 +155,7 @@ abstract class Pickler extends SubComponent with Logging {
     private def deskolemize(sym: Symbol): Symbol = {
       if (sym.isTypeSkolem) {
         val sym1 = sym.deSkolemize
-        log({
+        _log({
           val what0 = sym.defString
           val what = sym1.defString match {
             case `what0` => what0

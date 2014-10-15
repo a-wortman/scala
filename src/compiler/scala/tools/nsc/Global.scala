@@ -280,7 +280,7 @@ class Global(var currentSettings: Settings, var reporter: Reporter)
     if (isDeveloper)
       warning(pos, "!!! " + msg)
     else
-      log(s"!!!$pos_s $msg") // such warnings always at least logged
+      _log(s"!!!$pos_s $msg") // such warnings always at least logged
   }
 
   override def shouldLogAtThisPhase = settings.log.isSetByUser && (
@@ -288,7 +288,7 @@ class Global(var currentSettings: Settings, var reporter: Reporter)
   )
   // Over 200 closure objects are eliminated by inlining this.
   /*
-  @inline final def log(msg: => AnyRef) {
+  @inline final def _log(msg: => AnyRef) {
     if (shouldLogAtThisPhase)
       inform("[log %s%s] %s".format(globalPhase, atPhaseStackMessage, msg))
   }

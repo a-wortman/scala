@@ -203,7 +203,7 @@ abstract class SuperAccessors extends transform.Transform with transform.TypingT
               decls.unlink(s)
               s.expandName(s.privateWithin)
               decls.enter(s)
-              log("Expanded '%s' to '%s' in %s".format(savedName, s.name, sym))
+              _log("Expanded '%s' to '%s' in %s".format(savedName, s.name, sym))
             }
           }
           super.transform(tree)
@@ -313,7 +313,7 @@ abstract class SuperAccessors extends transform.Transform with transform.TypingT
                   && !needsProtectedAccessor(sym, tree.pos)
                 )
                 if (shouldEnsureAccessor) {
-                  log("Ensuring accessor for call to protected " + sym.fullLocationString + " from " + currentClass)
+                  _log("Ensuring accessor for call to protected " + sym.fullLocationString + " from " + currentClass)
                   ensureAccessor(sel)
                 }
                 else

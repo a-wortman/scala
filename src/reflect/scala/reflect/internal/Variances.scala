@@ -102,7 +102,7 @@ trait Variances {
         if (!relative.isBivariant) {
           def sym_s  = s"$sym (${sym.variance}${sym.locationString})"
           def base_s = s"$base in ${base.owner}" + (if (base.owner.isClass) "" else " in " + base.owner.enclClass)
-          log(s"verifying $sym_s is $required at $base_s")
+          _log(s"verifying $sym_s is $required at $base_s")
           if (sym.variance != required)
             issueVarianceError(base, sym, required)
         }

@@ -1078,7 +1078,7 @@ trait Trees extends api.Trees {
 
     private def requireLegal(value: Any, allowed: Any, what: String) = (
       if (value != allowed) {
-        log(s"can't set $what for $self to value other than $allowed")
+        _log(s"can't set $what for $self to value other than $allowed")
         if (settings.debug && settings.developer)
           (new Throwable).printStackTrace
       }
@@ -1471,9 +1471,9 @@ trait Trees extends api.Trees {
           if (tree.symbol == oldowner) {
             // SI-5612
             if (newowner hasTransOwner oldowner)
-              log("NOT changing owner of %s because %s is nested in %s".format(tree, newowner, oldowner))
+              _log("NOT changing owner of %s because %s is nested in %s".format(tree, newowner, oldowner))
             else {
-              log("changing owner of %s: %s => %s".format(tree, oldowner, newowner))
+              _log("changing owner of %s: %s => %s".format(tree, oldowner, newowner))
               tree.symbol = newowner
             }
           }

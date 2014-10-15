@@ -174,7 +174,7 @@ abstract class GenBCode extends BCodeSyncAndTry {
             if (claszSymbol.companionClass == NoSymbol) {
               mirrorCodeGen.genMirrorClass(claszSymbol, cunit)
             } else {
-              log(s"No mirror class for module with linked class: ${claszSymbol.fullName}")
+              _log(s"No mirror class for module with linked class: ${claszSymbol.fullName}")
               null
             }
           } else null
