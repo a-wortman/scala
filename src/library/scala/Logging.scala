@@ -8,19 +8,19 @@ trait Logging {
 
   @inline
   final protected def printResult[T](msg: String)(result: T) = {
-    log(msg + ": " + result)
+    _log(msg + ": " + result)
     result
   }
 
   @inline
-  final protected def log[T](msg: => AnyRef) = if(logging) println(msg)
+  final protected def _log[T](msg: => AnyRef) = if(logging) println(msg)
 
   @inline
-  final protected def debuglog(msg: => String) = if(logging && debug) log("Debug: " +msg)
+  final protected def debuglog(msg: => String) = if(logging && debug) _log("Debug: " +msg)
 
   @inline
   final protected def logResult[T](msg: => String)(result: T): T = {
-    log(msg + ": " + result)
+    _log(msg + ": " + result)
     result
   }
 
