@@ -924,7 +924,7 @@ abstract class Erasure extends AddInterfaces
         tree.fun match {
           case TypeApply(fun @ Select(qual, name), args @ List(arg))
           if ((fun.symbol == Any_isInstanceOf || fun.symbol == Object_isInstanceOf) &&
-              unboundedGenericArrayLevel(arg.tpe) > 0) => // !!! todo: simplify by having GenericArray also extract trees
+              unboundedGenericArrayLevel(arg.tpe) > 0) => profUtils.time("preEraseApply/TypeApply", profUtils.erasure_preErase) { // !!! todo: simplify by having GenericArray also extract trees
             val level = unboundedGenericArrayLevel(arg.tpe)
             def isArrayTest(arg: Tree) =
               gen.mkRuntimeCall(nme.isArray, List(arg, Literal(Constant(level))))
@@ -943,90 +943,121 @@ abstract class Erasure extends AddInterfaces
                 )
               }
             }
-          case fn @ Select(qual, name) =>
+          }
+          case fn @ Select(qual, name) => profUtils.time("preEraseApply/Select", profUtils.erasure_preErase) {
             val args = tree.args
             if (fn.symbol.owner == ArrayClass) {
-              // Have to also catch calls to abstract types which are bounded by Array.
-              if (unboundedGenericArrayLevel(qual.tpe.widen) == 1 || qual.tpe.typeSymbol.isAbstractType) {
-                // convert calls to apply/update/length on generic arrays to
-                // calls of ScalaRunTime.array_xxx method calls
-                global.typer.typedPos(tree.pos) {
-                  val arrayMethodName = name match {
-                    case nme.apply  => nme.array_apply
-                    case nme.length => nme.array_length
-                    case nme.update => nme.array_update
-                    case nme.clone_ => nme.array_clone
-                    case _          => reporter.error(tree.pos, "Unexpected array member, no translation exists.") ; nme.NO_NAME
-                  }
-                  gen.mkRuntimeCall(arrayMethodName, qual :: args)
-                }
-              } else {
-                // store exact array erasure in map to be retrieved later when we might
-                // need to do the cast in adaptMember
-                // Note: No specialErasure needed here because we simply cast, on
-                // elimination of SelectFromArray, no boxing or unboxing is done there.
-                treeCopy.Apply(
-                  tree,
-                  SelectFromArray(qual, name, erasure(tree.symbol)(qual.tpe)).copyAttrs(fn),
-                  args)
+              profUtils.time("preEraseApply/Select/Array", profUtils.erasure_preErase) {
+                preEraseApplySelectArray(fn, tree)
+              }
+            } else if (args.isEmpty && interceptedMethods(fn.symbol)) {
+              profUtils.time("preEraseApply/Select/intercepted", profUtils.erasure_preErase) {
+                preEraseApplyInterceptedMethods(fn, tree)
+              }
+            } else {
+              profUtils.time("preEraseApply/Select/else", profUtils.erasure_preErase) {
+                preEraseApplySelectElse(qual, name, tree)
               }
             }
-            else if (args.isEmpty && interceptedMethods(fn.symbol)) {
-              if (poundPoundMethods.contains(fn.symbol)) {
-                // This is unattractive, but without it we crash here on ().## because after
-                // erasure the ScalaRunTime.hash overload goes from Unit => Int to BoxedUnit => Int.
-                // This must be because some earlier transformation is being skipped on ##, but so
-                // far I don't know what.  For null we now define null.## == 0.
-                qual.tpe.typeSymbol match {
-                  case UnitClass | NullClass                    => LIT(0)
-                  case IntClass                                 => qual
-                  case s @ (ShortClass | ByteClass | CharClass) => numericConversion(qual, s)
-                  case BooleanClass                             => If(qual, LIT(true.##), LIT(false.##))
-                  case _                                        =>
-                    // Since we are past typer, we need to avoid creating trees carrying
-                    // overloaded types.  This logic is custom (and technically incomplete,
-                    // although serviceable) for def hash.  What is really needed is for
-                    // the overloading logic presently hidden away in a few different
-                    // places to be properly exposed so we can just call "resolveOverload"
-                    // after typer.  Until then:
-                    val alts    = ScalaRunTimeModule.info.member(nme.hash_).alternatives
-                    def alt1    = alts find (_.info.paramTypes.head =:= qual.tpe)
-                    def alt2    = ScalaRunTimeModule.info.member(nme.hash_) suchThat (_.info.paramTypes.head.typeSymbol == AnyClass)
-                    val newTree = gen.mkRuntimeCall(nme.hash_, qual :: Nil) setSymbol (alt1 getOrElse alt2)
-
-                    global.typer.typed(newTree)
-                }
-              } else if (isPrimitiveValueClass(qual.tpe.typeSymbol)) {
-                // Rewrite 5.getClass to ScalaRunTime.anyValClass(5)
-                global.typer.typed(gen.mkRuntimeCall(nme.anyValClass, List(qual, typer.resolveClassTag(tree.pos, qual.tpe.widen))))
-              } else if (primitiveGetClassMethods.contains(fn.symbol)) {
-                // if we got here then we're trying to send a primitive getClass method to either
-                // a) an Any, in which cage Object_getClass works because Any erases to object. Or
-                //
-                // b) a non-primitive, e.g. because the qualifier's type is a refinement type where one parent
-                //    of the refinement is a primitive and another is AnyRef. In that case
-                //    we get a primitive form of _getClass trying to target a boxed value
-                //    so we need replace that method name with Object_getClass to get correct behavior.
-                //    See SI-5568.
-                tree setSymbol Object_getClass
-              } else {
-                debugwarn(s"The symbol '${fn.symbol}' was interecepted but didn't match any cases, that means the intercepted methods set doesn't match the code")
-                tree
-              }
-            } else qual match {
-              case New(tpt) if name == nme.CONSTRUCTOR && tpt.tpe.typeSymbol.isDerivedValueClass =>
-                // println("inject derived: "+arg+" "+tpt.tpe)
-                val List(arg) = args
-                val attachment = new TypeRefAttachment(tree.tpe.asInstanceOf[TypeRef])
-                InjectDerivedValue(arg) updateAttachment attachment
-              case _ =>
-                preEraseNormalApply(tree)
-            }
-
-          case _ =>
+          }
+          case _ => profUtils.time("preEraseApply/_", profUtils.erasure_preErase) {
             preEraseNormalApply(tree)
+          }
         }
       }
+
+      private def preEraseApplyInterceptedMethods(fn: Select, tree: Apply) = {
+        val qual = fn.qualifier
+        val name = fn.name
+
+        val args = tree.args
+
+        if (poundPoundMethods.contains(fn.symbol)) {
+          // This is unattractive, but without it we crash here on ().## because after
+          // erasure the ScalaRunTime.hash overload goes from Unit => Int to BoxedUnit => Int.
+          // This must be because some earlier transformation is being skipped on ##, but so
+          // far I don't know what.  For null we now define null.## == 0.
+          qual.tpe.typeSymbol match {
+            case UnitClass | NullClass                    => LIT(0)
+            case IntClass                                 => qual
+            case s @ (ShortClass | ByteClass | CharClass) => numericConversion(qual, s)
+            case BooleanClass                             => If(qual, LIT(true.##), LIT(false.##))
+            case _                                        =>
+              // Since we are past typer, we need to avoid creating trees carrying
+              // overloaded types.  This logic is custom (and technically incomplete,
+              // although serviceable) for def hash.  What is really needed is for
+              // the overloading logic presently hidden away in a few different
+              // places to be properly exposed so we can just call "resolveOverload"
+              // after typer.  Until then:
+              val alts    = ScalaRunTimeModule.info.member(nme.hash_).alternatives
+              def alt1    = alts find (_.info.paramTypes.head =:= qual.tpe)
+              def alt2    = ScalaRunTimeModule.info.member(nme.hash_) suchThat (_.info.paramTypes.head.typeSymbol == AnyClass)
+              val newTree = gen.mkRuntimeCall(nme.hash_, qual :: Nil) setSymbol (alt1 getOrElse alt2)
+
+              global.typer.typed(newTree)
+          }
+        } else if (isPrimitiveValueClass(qual.tpe.typeSymbol)) {
+          // Rewrite 5.getClass to ScalaRunTime.anyValClass(5)
+          global.typer.typed(gen.mkRuntimeCall(nme.anyValClass, List(qual, typer.resolveClassTag(tree.pos, qual.tpe.widen))))
+        } else if (primitiveGetClassMethods.contains(fn.symbol)) {
+          // if we got here then we're trying to send a primitive getClass method to either
+          // a) an Any, in which cage Object_getClass works because Any erases to object. Or
+          //
+          // b) a non-primitive, e.g. because the qualifier's type is a refinement type where one parent
+          //    of the refinement is a primitive and another is AnyRef. In that case
+          //    we get a primitive form of _getClass trying to target a boxed value
+          //    so we need replace that method name with Object_getClass to get correct behavior.
+          //    See SI-5568.
+          tree setSymbol Object_getClass
+        } else {
+          debugwarn(s"The symbol '${fn.symbol}' was interecepted but didn't match any cases, that means the intercepted methods set doesn't match the code")
+          tree
+        }
+      }
+
+      private def preEraseApplySelectArray(fn: Select, tree: Apply) = {
+        val qual = fn.qualifier
+        val name = fn.name
+
+        val args = tree.args
+        // Have to also catch calls to abstract types which are bounded by Array.
+        if (unboundedGenericArrayLevel(qual.tpe.widen) == 1 || qual.tpe.typeSymbol.isAbstractType) {
+          // convert calls to apply/update/length on generic arrays to
+          // calls of ScalaRunTime.array_xxx method calls
+          global.typer.typedPos(tree.pos) {
+            val arrayMethodName = name match {
+              case nme.apply  => nme.array_apply
+              case nme.length => nme.array_length
+              case nme.update => nme.array_update
+              case nme.clone_ => nme.array_clone
+              case _          => reporter.error(tree.pos, "Unexpected array member, no translation exists.") ; nme.NO_NAME
+            }
+            gen.mkRuntimeCall(arrayMethodName, qual :: args)
+          }
+        } else {
+          // store exact array erasure in map to be retrieved later when we might
+          // need to do the cast in adaptMember
+          // Note: No specialErasure needed here because we simply cast, on
+          // elimination of SelectFromArray, no boxing or unboxing is done there.
+          treeCopy.Apply(
+            tree,
+            SelectFromArray(qual, name, erasure(tree.symbol)(qual.tpe)).copyAttrs(fn),
+            args)
+        }
+      }
+
+      private def preEraseApplySelectElse(qual: Tree, name: Name, tree: Apply) = profUtils.time("WOT", profUtils.erasure_preErase) {qual match {
+        case New(tpt) if name == nme.CONSTRUCTOR && tpt.tpe.typeSymbol.isDerivedValueClass =>
+          profUtils.time("preEraseApply/Select/else/New", profUtils.erasure_preErase) {
+            // println("inject derived: "+arg+" "+tpt.tpe)
+            val List(arg) = tree.args
+            val attachment = new TypeRefAttachment(tree.tpe.asInstanceOf[TypeRef])
+            InjectDerivedValue(arg) updateAttachment attachment
+          }
+        case _ => profUtils.time("preEraseApply/Select/else/_", profUtils.erasure_preErase) {
+          preEraseNormalApply(tree)
+        }
+      }}
 
       def preErase(tree: Tree): Tree = tree match {
         case tree: Apply =>
